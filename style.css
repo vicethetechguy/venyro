@@ -1,0 +1,115 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+  
+  input[type=range] { -webkit-appearance: none; background: transparent; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; }
+  input[type=range]:focus { outline: none; }
+}
+
+@layer components {
+  .custom-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: #18181b;
+    border-radius: 2px;
+  }
+  .custom-slider::-webkit-slider-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #fafafa;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -6px;
+    border: 2px solid #09090b;
+  }
+
+  .bg-grid-pattern {
+    background-image: linear-gradient(to right, #27272a 1px, transparent 1px),
+                      linear-gradient(to bottom, #27272a 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+  }
+
+  .bg-plus-grid {
+    background-image: radial-gradient(circle at center, #27272a 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .plus-marker {
+    position: relative;
+    width: 10px;
+    height: 10px;
+  }
+  .plus-marker::before, .plus-marker::after {
+    content: '';
+    position: absolute;
+    background-color: #27272a;
+  }
+  .plus-marker::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    transform: translateY(-50%);
+  }
+  .plus-marker::after {
+    left: 50%;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    transform: translateX(-50%);
+  }
+
+  /* Custom Prose Styling for Strategy Reports */
+  .prose-custom h1, .prose-custom h2, .prose-custom h3 { @apply text-primary font-semibold mt-6 mb-3 font-sans tracking-tight; }
+  .prose-custom h1 { @apply text-xl; }
+  .prose-custom h2 { @apply text-lg; }
+  .prose-custom h3 { @apply text-sm text-zinc-400 uppercase tracking-widest border-b border-border pb-2; }
+  
+  .prose-custom p { @apply mb-4 text-secondary leading-relaxed text-[15px] font-normal; }
+  .prose-custom ul, .prose-custom ol { @apply mb-5 pl-2; }
+  .prose-custom li { @apply relative pl-6 mb-2 text-zinc-200 text-sm leading-relaxed font-normal; }
+  .prose-custom ul li::before { content: '•'; @apply absolute left-1 text-zinc-600 font-bold; }
+  .prose-custom ol { counter-reset: item; }
+  .prose-custom ol li::before { 
+    counter-increment: item; 
+    content: counter(item) "."; 
+    @apply absolute left-0 text-zinc-500 font-mono text-xs font-medium top-0.5; 
+  }
+  
+  .prose-custom strong { @apply text-white font-semibold; }
+  
+  .prose-custom table { @apply w-full border-collapse my-6 text-[13px] bg-black/20 rounded-xl overflow-hidden border border-border; }
+  .prose-custom th { @apply bg-surface text-primary text-left p-3 font-semibold border-b border-border; }
+  .prose-custom td { @apply p-3 border-b border-zinc-800/50 text-secondary font-normal; }
+  .prose-custom tr:last-child td { border-bottom: none; }
+  
+  .prose-custom code { @apply font-mono bg-border text-zinc-200 px-1.5 py-0.5 rounded text-[0.8em]; }
+  .prose-custom pre { @apply bg-background p-4 rounded-xl border border-border my-4 overflow-x-auto; }
+  .prose-custom pre code { @apply bg-transparent p-0 text-[0.85rem]; }
+  .prose-custom blockquote { @apply border-l-4 border-zinc-700 pl-5 italic text-zinc-500 my-6 font-light; }
+}
+
+@media print {
+  body { background: white !important; color: black !important; }
+  #root { height: auto !important; overflow: visible !important; }
+  aside { display: none !important; }
+  .print\:hidden { display: none !important; }
+  .prose-custom p, .prose-custom li, .prose-custom td { color: #1f2937 !important; }
+  .prose-custom h1, .prose-custom h2, .prose-custom h3 { color: black !important; border-color: #e5e7eb !important; }
+  .bg-grid-pattern, .bg-plus-grid { display: none !important; }
+  .max-w-6xl { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+  main { background: white !important; }
+  .lg\:p-12 { padding: 0 !important; }
+}
