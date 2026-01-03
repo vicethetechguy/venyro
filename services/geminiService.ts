@@ -1,11 +1,22 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { StrategyInputs, StrategyResult, BlueprintResult, StrategyMapData } from "../types";
 
+/**
+ * GeminiService handles all interactions with the Google GenAI SDK.
+ * Note: process.env.API_KEY is polyfilled by vite.config.ts for browser compatibility.
+ */
 export class GeminiService {
   private getClient() {
-    // Strictly adhering to the requirement of using process.env.API_KEY
-    // On Netlify, this will be populated from the build environment.
-    return new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    // The Google GenAI SDK initialization MUST use process.env.API_KEY.
+    // This is enabled on Vercel via the 'define' polyfill in vite.config.ts.
+    const apiKey = process.env.API_KEY;
+    
+    if (!apiKey) {
+      console.error("Venyro: API_KEY is not defined in environment variables.");
+      // We return the instance anyway to satisfy types, but calls will fail until key is provided
+    }
+
+    return new GoogleGenAI({ apiKey: apiKey as string });
   }
 
   async inferStrategy(concept: string): Promise<StrategyMapData> {
