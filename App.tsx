@@ -527,6 +527,8 @@ const App: React.FC = () => {
               history={history} 
               onSelectHistory={handleHistoryItemClick} 
               onDeleteHistory={handleDeleteHistoryEntry}
+              // Pass current inputs to fix name comparison error in AnalyticsView
+              currentInputs={inputs}
             />
           )}
 
