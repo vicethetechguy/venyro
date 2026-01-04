@@ -120,10 +120,6 @@ const App: React.FC = () => {
   };
 
   const startInference = async () => {
-    if (!inputs.concept.trim()) {
-      setError("Please describe your vision first.");
-      return;
-    }
     setLoading(true);
     setError(null);
     try {
@@ -141,29 +137,26 @@ const App: React.FC = () => {
       }));
       
       setMapData(inferred);
-      setLastAiResponse(JSON.stringify(inferred));
+      const responseStr = JSON.stringify(inferred);
+      setLastAiResponse(responseStr);
       setStep('MAP');
-    } catch (err) {
-      setError("Strategic inference failed. Please check your connection.");
+    } catch (err: any) {
+      setError(err.message || "Synthesis engine error. Please check connectivity.");
     } finally {
       setLoading(false);
     }
   };
 
   const generateFullStrategy = async () => {
-    if (!inputs.productName.trim()) {
-      setError("Venture name is required for full synthesis.");
-      return;
-    }
-    
     setLoading(true);
     setError(null);
     try {
       const gemini = new GeminiService();
-      // ALWAYS call API if productName is present, do not block. Pass lastAiResponse as context.
+      // ALWAYS proceed with synthesis. Context is derived from previous AI output if it exists.
       const strategy = await gemini.generateStrategy(inputs, lastAiResponse);
       setResult(strategy);
-      setLastAiResponse(JSON.stringify(strategy));
+      const responseStr = JSON.stringify(strategy);
+      setLastAiResponse(responseStr);
       setStep('REPORT');
       
       const entry: HistoryEntry = {
@@ -191,8 +184,9 @@ const App: React.FC = () => {
           }
         }
       }
-    } catch (err) {
-      setError("Strategy synthesis failed. Please try refining your concept.");
+    } catch (err: any) {
+      // Use actual error message instead of generic "refining concept" failure message.
+      setError(err.message || "Synthesis engine failed to generate full strategy.");
     } finally {
       setLoading(false);
     }
@@ -230,19 +224,18 @@ const App: React.FC = () => {
 
   const handleStartBlueprint = async () => {
     setActiveTab('blueprint');
-    // REMOVED !blueprintResult block to allow regeneration as per requirement.
-    if (inputs.productName) {
-      setLoading(true);
-      try {
-        const gemini = new GeminiService();
-        const res = await gemini.generateBlueprint(inputs, lastAiResponse);
-        setBlueprintResult(res);
-        setLastAiResponse(JSON.stringify(res));
-      } catch (err) {
-        console.error("Blueprint generation failed", err);
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true);
+    setError(null);
+    try {
+      const gemini = new GeminiService();
+      // Always trigger AI regardless of existing state.
+      const res = await gemini.generateBlueprint(inputs, lastAiResponse);
+      setBlueprintResult(res);
+      setLastAiResponse(JSON.stringify(res));
+    } catch (err: any) {
+      setError(err.message || "Blueprint architect failed to initialize.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -487,7 +480,7 @@ const App: React.FC = () => {
                       />
                       <button 
                         onClick={startInference}
-                        disabled={!inputs.concept.trim() || loading}
+                        disabled={loading}
                         className="absolute bottom-4 right-4 md:bottom-6 md:right-6 w-12 h-12 md:w-14 md:h-14 bg-primary text-background rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl disabled:opacity-30 disabled:scale-100"
                       >
                         <Logo isGenerating={loading} className="h-6 w-6 md:h-8 md:w-8" hideText />
@@ -505,7 +498,13 @@ const App: React.FC = () => {
               )}
 
               {step === 'REPORT' && result && (
-                <StrategyReport result={result} inputs={inputs} onClose={() => setStep('MAP')} onStartExecution={handleStartBlueprint} />
+                <StrategyReport 
+                  result={result} 
+                  inputs={inputs} 
+                  onClose={() => setStep('MAP')} 
+                  onStartExecution={handleStartBlueprint}
+                  previousContext={lastAiResponse}
+                />
               )}
             </div>
           )}
@@ -514,19 +513,13 @@ const App: React.FC = () => {
             <BlueprintView 
               blueprint={blueprintResult} 
               loading={loading} 
-              onGenerate={async () => {
-                setLoading(true);
-                const gemini = new GeminiService();
-                const res = await gemini.generateBlueprint(inputs, lastAiResponse);
-                setBlueprintResult(res);
-                setLastAiResponse(JSON.stringify(res));
-                setLoading(false);
-              }} 
+              onGenerate={handleStartBlueprint} 
               onUpdateBlueprint={(updated) => {
                 setBlueprintResult(updated);
                 setLastAiResponse(JSON.stringify(updated));
               }}
-              conceptProvided={inputs.concept.length > 0} 
+              conceptProvided={true} 
+              previousContext={lastAiResponse}
             />
           )}
 

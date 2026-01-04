@@ -62,18 +62,20 @@ export class GeminiService {
     return this.callProxy('generateBlueprint', inputs, undefined, context);
   }
 
-  async refineBlueprint(blueprint: BlueprintResult, instruction: string, history: any[]): Promise<BlueprintResult> {
-    let context = blueprint.sections.map(s => `Section: ${s.title}\n${s.content}`).join('\n\n');
+  async refineBlueprint(blueprint: BlueprintResult, instruction: string, history: any[], previousContext?: string): Promise<BlueprintResult> {
+    // If we have direct previousContext, use it. Otherwise, construct from current sections.
+    let context = previousContext || blueprint.sections.map(s => `Section: ${s.title}\n${s.content}`).join('\n\n');
     const expandedInstruction = this.expandCommand(instruction, context);
     const fullHistory = [...history, { role: 'user', parts: [{ text: expandedInstruction }] }];
     return this.callProxy('refineBlueprint', blueprint, fullHistory, context);
   }
 
-  async chatWithStrategy(strategy: StrategyResult, inputs: StrategyInputs, question: string, history: any[]): Promise<string> {
-    let lastContext = strategy.summary || inputs.concept;
-    const lastModelMessage = [...history].reverse().find(m => m.role === 'model');
-    if (lastModelMessage && lastModelMessage.parts && lastModelMessage.parts[0].text) {
-      lastContext = lastModelMessage.parts[0].text;
+  async chatWithStrategy(strategy: StrategyResult, inputs: StrategyInputs, question: string, history: any[], previousContext?: string): Promise<string> {
+    // Priority: 1. previousContext passed from state, 2. most recent model message, 3. strategy summary
+    let lastContext = previousContext;
+    if (!lastContext) {
+      const lastModelMessage = [...history].reverse().find(m => m.role === 'model');
+      lastContext = lastModelMessage?.parts?.[0]?.text || strategy.summary || inputs.concept;
     }
 
     const expandedQuestion = this.expandCommand(question, lastContext);

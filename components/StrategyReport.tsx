@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -39,6 +40,7 @@ interface StrategyReportProps {
   inputs: StrategyInputs;
   onClose: () => void;
   onStartExecution: () => void;
+  previousContext?: string;
 }
 
 interface Message {
@@ -46,7 +48,7 @@ interface Message {
   text: string;
 }
 
-const StrategyReport: React.FC<StrategyReportProps> = ({ result, inputs, onClose, onStartExecution }) => {
+const StrategyReport: React.FC<StrategyReportProps> = ({ result, inputs, onClose, onStartExecution, previousContext }) => {
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -203,11 +205,11 @@ ${step.description}`).join('\n\n')}
       }));
 
       // Service will handle expansion with context
-      const response = await gemini.chatWithStrategy(result, inputs, instruction, history);
+      const response = await gemini.chatWithStrategy(result, inputs, instruction, history, previousContext);
       setMessages(prev => [...prev, { role: 'model', text: response }]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error:", error);
-      setMessages(prev => [...prev, { role: 'model', text: "### Connection Error\n\nI'm having trouble connecting to my strategic engine. Please try again in a moment." }]);
+      setMessages(prev => [...prev, { role: 'model', text: `### Synthesis Alert\n\n${error.message || "I'm having trouble connecting to my strategic engine. Please try again."}` }]);
     } finally {
       setIsTyping(false);
     }
@@ -365,8 +367,8 @@ ${step.description}`).join('\n\n')}
                 <BrainCircuit className={`w-5 h-5 md:w-6 md:h-6 ${theme.accent}`} />
               </div>
               <div>
-                <h3 className={`text-[11px] md:text-xs font-bold uppercase tracking-[0.2em] ${theme.accent}`}>Strategic Advisory</h3>
-                <p className="text-[9px] md:text-[10px] opacity-60 font-bold uppercase">Interface: Venyro Intelligence</p>
+                <h3 className={`text-xs font-bold text-primary uppercase tracking-[0.2em] ${theme.accent}`}>Strategic Advisory</h3>
+                <p className="text-[10px] text-zinc-500 font-medium">Interface: Venyro Intelligence</p>
               </div>
             </div>
             <div className="flex items-center gap-2">

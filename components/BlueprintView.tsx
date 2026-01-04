@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -33,6 +34,7 @@ interface BlueprintViewProps {
   onGenerate: () => void;
   onUpdateBlueprint: (updated: BlueprintResult) => void;
   conceptProvided: boolean;
+  previousContext?: string;
 }
 
 interface ChatMessage {
@@ -40,7 +42,7 @@ interface ChatMessage {
   text: string;
 }
 
-const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGenerate, onUpdateBlueprint, conceptProvided }) => {
+const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGenerate, onUpdateBlueprint, conceptProvided, previousContext }) => {
   const [chatInput, setChatInput] = useState('');
   const [isRefining, setIsRefining] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -113,18 +115,18 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
         parts: [{ text: m.text }]
       }));
       
-      const updatedBlueprint = await gemini.refineBlueprint(blueprint, instruction, history);
+      const updatedBlueprint = await gemini.refineBlueprint(blueprint, instruction, history, previousContext);
       onUpdateBlueprint(updatedBlueprint);
       
       setMessages(prev => [...prev, { 
         role: 'model', 
         text: `### Strategic Expansion Complete\n\nI have updated the whitepaper for **${blueprint.title}** based on your directions. The architectural layout has been adjusted to incorporate the new insights.` 
       }]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Refinement error:", error);
       setMessages(prev => [...prev, { 
         role: 'model', 
-        text: "I encountered an error while attempting to restructure the whitepaper. Please ensure your instructions are specific." 
+        text: `### Document Protocol Error\n\n${error.message || "I encountered an error while attempting to restructure the whitepaper. Please ensure your instructions are specific."}` 
       }]);
     } finally {
       setIsRefining(false);
