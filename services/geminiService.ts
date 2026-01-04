@@ -1,4 +1,3 @@
-
 import { StrategyInputs, StrategyResult, BlueprintResult, StrategyMapData } from "../types";
 
 /**
@@ -31,6 +30,28 @@ export class GeminiService {
     }
   }
 
+  /**
+   * Expands short commands into full, context-aware instructions.
+   * Requirement: Always include the previous response from the AI as context.
+   */
+  public expandCommand(command: string, context: string): string {
+    const cmd = command.toLowerCase().trim();
+    
+    // Command mapping for specific strategic keywords
+    const commandMap: Record<string, string> = {
+      'synthesis': 'Please create a comprehensive synthesis and structured analysis of the following strategic content:',
+      'expand': 'Please expand significantly on the following content, providing more technical depth, granular data, and market context:',
+      'summary': 'Please provide a high-level executive summary of the following content, focusing on key takeaways and action items:',
+      'strategy': 'Please refine the overarching strategic approach and suggest tactical improvements for the following business content:',
+      'refine': 'Please refine and polish the following content, improving the professional tone, clarity, and strategic impact:'
+    };
+
+    const prefix = commandMap[cmd] || `Please process the following request: "${command}" using this content as the direct context:`;
+    
+    // Construct the combined prompt ensuring the AI "sees" the previous output
+    return `${prefix}\n\n--- START PREVIOUS AI RESPONSE ---\n${context}\n--- END PREVIOUS AI RESPONSE ---`;
+  }
+
   async inferStrategy(concept: string): Promise<StrategyMapData> {
     return this.callProxy('inferStrategy', concept);
   }
@@ -44,13 +65,29 @@ export class GeminiService {
   }
 
   async refineBlueprint(blueprint: BlueprintResult, instruction: string, history: any[]): Promise<BlueprintResult> {
-    // Append the latest user instruction to the history for the server to process
-    const fullHistory = [...history, { role: 'user', parts: [{ text: instruction }] }];
+    // For Blueprints, the "context" is either the current full blueprint or the last model message
+    let context = blueprint.sections.map(s => `Section: ${s.title}\n${s.content}`).join('\n\n');
+    
+    // If the instruction is a simple keyword, wrap it with context
+    const expandedInstruction = this.expandCommand(instruction, context);
+    
+    const fullHistory = [...history, { role: 'user', parts: [{ text: expandedInstruction }] }];
     return this.callProxy('refineBlueprint', blueprint, fullHistory);
   }
 
   async chatWithStrategy(strategy: StrategyResult, inputs: StrategyInputs, question: string, history: any[]): Promise<string> {
-    const fullHistory = [...history, { role: 'user', parts: [{ text: `Topic: ${inputs.productName} strategy refinement. Question: ${question}` }] }];
+    // 1. Retrieve the last response from the AI if history exists
+    let lastContext = strategy.summary || inputs.concept;
+    const lastModelMessage = [...history].reverse().find(m => m.role === 'model');
+    if (lastModelMessage && lastModelMessage.parts && lastModelMessage.parts[0].text) {
+      lastContext = lastModelMessage.parts[0].text;
+    }
+
+    // 2. Convert the command/question into a clear instruction using that last response
+    const expandedQuestion = this.expandCommand(question, lastContext);
+    
+    // 3. Send combined instruction + history to AI
+    const fullHistory = [...history, { role: 'user', parts: [{ text: expandedQuestion }] }];
     const data = await this.callProxy('chatWithStrategy', {}, fullHistory);
     return data.text || "No synthesis received from advisory engine.";
   }

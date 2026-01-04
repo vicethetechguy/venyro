@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -16,7 +15,13 @@ import {
   MessageCircle,
   CheckCircle2,
   Copy,
-  FileDown
+  FileDown,
+  X,
+  Zap,
+  Layers,
+  FileSearch,
+  Target,
+  Wand2
 } from 'lucide-react';
 import { BlueprintResult } from '../types';
 import { GeminiService } from '../services/geminiService';
@@ -52,7 +57,6 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Update hash in URL silently
       window.history.replaceState(null, '', `#${sectionId}`);
     }
   };
@@ -126,6 +130,14 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
       setIsRefining(false);
     }
   };
+
+  const quickCommands = [
+    { label: 'Synthesis', cmd: 'synthesis', icon: Layers },
+    { label: 'Expand', cmd: 'expand', icon: Zap },
+    { label: 'Summary', cmd: 'summary', icon: FileSearch },
+    { label: 'Strategy', cmd: 'strategy', icon: Target },
+    { label: 'Refine', cmd: 'refine', icon: Wand2 },
+  ];
 
   const architectSuggestions = [
     "Detail the financial projections",
@@ -323,6 +335,22 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
                       </div>
                     )}
                     <div ref={chatEndRef} />
+                  </div>
+
+                  {/* COMMAND BAR */}
+                  <div className="px-6 py-3 border-t border-white/5 bg-zinc-900/50 flex items-center gap-4 overflow-x-auto no-scrollbar">
+                     <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest whitespace-nowrap">Quick Actions:</span>
+                     {quickCommands.map((item) => (
+                       <button
+                         key={item.cmd}
+                         onClick={() => handleSendMessage(item.cmd)}
+                         disabled={isRefining}
+                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-zinc-950 text-zinc-500 hover:text-primary hover:border-primary transition-all active:scale-95 group shrink-0"
+                       >
+                         <item.icon className="w-3 h-3 group-hover:scale-110 transition-transform" />
+                         <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
+                       </button>
+                     ))}
                   </div>
 
                   <div className="p-6 bg-black/40 border-t border-border/50 space-y-4">

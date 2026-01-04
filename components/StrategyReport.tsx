@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -24,7 +23,11 @@ import {
   Zap,
   Shield,
   Palette,
-  Code2
+  Code2,
+  Layers,
+  FileSearch,
+  CheckCircle2,
+  Wand2
 } from 'lucide-react';
 import { StrategyResult, StrategyInputs } from '../types';
 import { GeminiService } from '../services/geminiService';
@@ -61,7 +64,8 @@ const StrategyReport: React.FC<StrategyReportProps> = ({ result, inputs, onClose
           button: "bg-indigo-600 text-white rounded-none hover:bg-cyan-500 shadow-[0_0_15px_#4f46e5] uppercase tracking-[0.2em] font-bold text-[10px]",
           header: "border-b-2 border-indigo-900 bg-black/95",
           input: "bg-zinc-900 border-indigo-900 rounded-none text-cyan-400",
-          kpiValue: "text-2xl md:text-3xl font-black italic tracking-tighter text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+          kpiValue: "text-2xl md:text-3xl font-black italic tracking-tighter text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]",
+          cmdBar: "bg-indigo-950/40 border-indigo-900/50"
         };
       case 'luxury':
         return {
@@ -71,7 +75,8 @@ const StrategyReport: React.FC<StrategyReportProps> = ({ result, inputs, onClose
           button: "bg-amber-600 text-black rounded-full hover:bg-amber-500 shadow-xl shadow-amber-900/20 font-semibold tracking-widest text-[10px]",
           header: "border-b border-amber-900/20 bg-black/90 backdrop-blur-3xl",
           input: "bg-zinc-900/50 border-amber-900/30 rounded-2xl",
-          kpiValue: "text-3xl md:text-4xl font-light tracking-tight text-amber-200"
+          kpiValue: "text-3xl md:text-4xl font-light tracking-tight text-amber-200",
+          cmdBar: "bg-amber-950/20 border-amber-900/20"
         };
       case 'vibrant':
         return {
@@ -81,7 +86,8 @@ const StrategyReport: React.FC<StrategyReportProps> = ({ result, inputs, onClose
           button: "bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-[2rem] hover:scale-105 transition-transform shadow-lg shadow-purple-200 text-[10px]",
           header: "bg-white/90 border-b border-zinc-100",
           input: "bg-zinc-100 border-transparent rounded-[2rem] focus:bg-white focus:ring-2 focus:ring-purple-500/20",
-          kpiValue: "text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-pink-500 to-purple-700"
+          kpiValue: "text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-pink-500 to-purple-700",
+          cmdBar: "bg-purple-50 border-purple-100"
         };
       case 'industrial':
         return {
@@ -91,7 +97,8 @@ const StrategyReport: React.FC<StrategyReportProps> = ({ result, inputs, onClose
           button: "bg-orange-600 text-white border-2 border-zinc-900 rounded-none hover:bg-black hover:text-white shadow-[3px_3px_0px_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none text-[9px]",
           header: "bg-white border-b-2 border-zinc-900",
           input: "bg-white border-2 border-zinc-900 rounded-none",
-          kpiValue: "text-2xl md:text-3xl font-bold uppercase tracking-tighter"
+          kpiValue: "text-2xl md:text-3xl font-bold uppercase tracking-tighter",
+          cmdBar: "bg-zinc-100 border-zinc-900"
         };
       case 'corporate':
         return {
@@ -101,7 +108,8 @@ const StrategyReport: React.FC<StrategyReportProps> = ({ result, inputs, onClose
           button: "bg-blue-700 text-white rounded-lg hover:bg-blue-800 font-medium text-[11px]",
           header: "bg-white border-b border-slate-200 shadow-sm",
           input: "bg-slate-50 border-slate-300 rounded-lg",
-          kpiValue: "text-2xl md:text-3xl font-bold text-slate-900"
+          kpiValue: "text-2xl md:text-3xl font-bold text-slate-900",
+          cmdBar: "bg-slate-100 border-slate-200"
         };
       default: // minimalist
         return {
@@ -111,7 +119,8 @@ const StrategyReport: React.FC<StrategyReportProps> = ({ result, inputs, onClose
           button: "bg-primary text-background rounded-2xl hover:bg-white shadow-xl shadow-white/5 font-medium text-[11px]",
           header: "border-b border-border/50 bg-background/80 backdrop-blur-xl",
           input: "bg-zinc-900/50 border-border rounded-2xl",
-          kpiValue: "text-3xl md:text-4xl font-medium text-primary tracking-tight"
+          kpiValue: "text-3xl md:text-4xl font-medium text-primary tracking-tight",
+          cmdBar: "bg-zinc-900/50 border-white/5"
         };
     }
   }, [inputs.brandStyle]);
@@ -179,13 +188,11 @@ ${step.description}`).join('\n\n')}
     URL.revokeObjectURL(url);
   };
 
-  const handleSendMessage = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!chatInput.trim() || isTyping) return;
+  const handleSendMessage = async (instruction: string) => {
+    if (!instruction.trim() || isTyping) return;
 
-    const userMessage = chatInput.trim();
     setChatInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    setMessages(prev => [...prev, { role: 'user', text: instruction }]);
     setIsTyping(true);
 
     try {
@@ -195,7 +202,8 @@ ${step.description}`).join('\n\n')}
         parts: [{ text: m.text }]
       }));
 
-      const response = await gemini.chatWithStrategy(result, inputs, userMessage, history);
+      // Service will handle expansion with context
+      const response = await gemini.chatWithStrategy(result, inputs, instruction, history);
       setMessages(prev => [...prev, { role: 'model', text: response }]);
     } catch (error) {
       console.error("Chat error:", error);
@@ -205,9 +213,16 @@ ${step.description}`).join('\n\n')}
     }
   };
 
+  const quickCommands = [
+    { label: 'Synthesis', cmd: 'synthesis', icon: Layers },
+    { label: 'Expand', cmd: 'expand', icon: Zap },
+    { label: 'Summary', cmd: 'summary', icon: FileSearch },
+    { label: 'Strategy', cmd: 'strategy', icon: Target },
+    { label: 'Refine', cmd: 'refine', icon: Wand2 },
+  ];
+
   return (
     <div className={`flex-1 overflow-y-auto scroll-smooth animate-in fade-in duration-700 ${theme.wrapper} scrollbar-hide`}>
-      {/* Dynamic Themed Header - Improved Alignment */}
       <div className={`sticky top-0 z-40 px-4 md:px-8 py-3 md:py-4 mb-6 md:mb-10 transition-all ${theme.header}`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 md:gap-5 min-w-0">
@@ -248,7 +263,6 @@ ${step.description}`).join('\n\n')}
       </div>
 
       <div className="max-w-6xl mx-auto px-4 md:px-8 pb-24 space-y-6 md:space-y-10">
-        {/* Executive Synthesis - Better Proportions */}
         <div className={`p-6 md:p-10 ${theme.card} relative overflow-hidden group`}>
           <div className="relative z-10 max-w-4xl">
             <h2 className={`text-[9px] md:text-[11px] font-bold uppercase tracking-[0.3em] mb-4 md:mb-6 opacity-60`}>Executive Synthesis</h2>
@@ -258,7 +272,6 @@ ${step.description}`).join('\n\n')}
           </div>
         </div>
 
-        {/* KPIs Grid - Grid-Based Proportions */}
         {result.kpis && result.kpis.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {result.kpis.map((kpi, idx) => (
@@ -280,7 +293,6 @@ ${step.description}`).join('\n\n')}
           </div>
         )}
 
-        {/* Technology Foundation - NEW SECTION FOR TECH TEAMS */}
         {result.technologies && result.technologies.length > 0 && (
           <div className={`p-6 md:p-10 ${theme.card}`}>
             <div className="flex items-center gap-3 mb-8">
@@ -304,7 +316,6 @@ ${step.description}`).join('\n\n')}
           </div>
         )}
 
-        {/* Viability & Revenue - Balanced Distribution */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
           <div className={`lg:col-span-5 p-6 md:p-10 flex flex-col justify-between ${theme.card}`}>
             <div>
@@ -347,7 +358,6 @@ ${step.description}`).join('\n\n')}
           </div>
         </div>
 
-        {/* Advisory Chat - Better Bubbles & Spacing */}
         <div className="mt-16 md:mt-24 space-y-6 md:space-y-8 animate-in slide-up duration-1000 delay-300">
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-3 md:gap-4">
@@ -406,7 +416,28 @@ ${step.description}`).join('\n\n')}
               <div ref={chatEndRef} />
             </div>
 
-            <form onSubmit={handleSendMessage} className={`p-4 md:p-6 bg-black/50 border-t border-white/5 flex items-center gap-3 md:gap-4 relative z-10 backdrop-blur-md`}>
+            <div className={`px-6 py-3 border-t border-white/5 flex items-center gap-4 overflow-x-auto no-scrollbar ${theme.cmdBar}`}>
+               <span className="text-[9px] font-bold opacity-60 uppercase tracking-widest whitespace-nowrap">Tactical Commands:</span>
+               {quickCommands.map((item) => (
+                 <button
+                   key={item.cmd}
+                   onClick={() => handleSendMessage(item.cmd)}
+                   disabled={isTyping}
+                   className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all active:scale-95 group shrink-0 ${theme.input} hover:border-zinc-500`}
+                 >
+                   <item.icon className={`w-3 h-3 group-hover:scale-110 transition-transform ${theme.accent}`} />
+                   <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
+                 </button>
+               ))}
+            </div>
+
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSendMessage(chatInput);
+              }} 
+              className={`p-4 md:p-6 bg-black/50 border-t border-white/5 flex items-center gap-3 md:gap-4 relative z-10 backdrop-blur-md`}
+            >
               <input 
                 type="text" 
                 value={chatInput}
@@ -425,7 +456,6 @@ ${step.description}`).join('\n\n')}
           </div>
         </div>
 
-        {/* Footer Actions - Synchronized Proportions */}
         <div className={`mt-16 md:mt-24 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 ${theme.card} border-l-4 md:border-l-8 ${theme.accent.replace('text-', 'border-')}`}>
           <div className="flex items-center gap-5 md:gap-8 text-center md:text-left">
             <div className={`hidden xs:flex w-12 h-12 md:w-16 md:h-16 items-center justify-center shrink-0 bg-black/40 border border-white/10 rounded-2xl`}>
