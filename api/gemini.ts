@@ -15,7 +15,7 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { action, payload, history } = req.body;
+  const { action, payload, history, context } = req.body;
   
   // Access secret key from Vercel Environment Variables
   const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
@@ -33,9 +33,9 @@ export default async function handler(req: any, res: any) {
       case 'inferStrategy':
         return await handleInferStrategy(ai, payload, res);
       case 'generateStrategy':
-        return await handleGenerateStrategy(ai, payload, res);
+        return await handleGenerateStrategy(ai, payload, context, res);
       case 'generateBlueprint':
-        return await handleGenerateBlueprint(ai, payload, res);
+        return await handleGenerateBlueprint(ai, payload, context, res);
       case 'refineBlueprint':
         return await handleRefineBlueprint(ai, payload, history, res);
       case 'chatWithStrategy':
@@ -98,10 +98,14 @@ async function handleInferStrategy(ai: any, concept: string, res: any) {
   return res.status(200).json(JSON.parse(response.text.trim()));
 }
 
-async function handleGenerateStrategy(ai: any, inputs: any, res: any) {
-  const prompt = `Act as a world-class venture architect. Generate a strategy for: ${inputs.productName}
+async function handleGenerateStrategy(ai: any, inputs: any, context: string | undefined, res: any) {
+  let prompt = `Act as a world-class venture architect. Generate a strategy for: ${inputs.productName}
   Style: ${inputs.brandStyle} | Vision: ${inputs.concept} | Transformation: ${inputs.transformation} | Moat: ${inputs.moat}
   Return projections, streams, viability, tech stack, risk matrix, roadmap, and KPIs.`;
+
+  if (context) {
+    prompt += `\n\nRefer to this previous synthesis context for consistency: ${context}`;
+  }
 
   const response = await ai.models.generateContent({
     model: "gemini-3-pro-preview",
@@ -132,10 +136,14 @@ async function handleGenerateStrategy(ai: any, inputs: any, res: any) {
   return res.status(200).json(JSON.parse(response.text.trim()));
 }
 
-async function handleGenerateBlueprint(ai: any, inputs: any, res: any) {
-  const prompt = `Synthesize an institutional-grade Executive Whitepaper for ${inputs.productName}. 
+async function handleGenerateBlueprint(ai: any, inputs: any, context: string | undefined, res: any) {
+  let prompt = `Synthesize an institutional-grade Executive Whitepaper for ${inputs.productName}. 
   Context: ${inputs.concept} solving ${inputs.problem}. Moat: ${inputs.moat}.
   Format with rich Markdown.`;
+
+  if (context) {
+    prompt += `\n\nIncorporate details from this previous synthesis context: ${context}`;
+  }
 
   const response = await ai.models.generateContent({
     model: "gemini-3-pro-preview",

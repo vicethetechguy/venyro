@@ -18,7 +18,7 @@ import {
   BrainCircuit,
   Activity,
   Upload,
-  Image as ImageIcon,
+  ImageIcon,
   Palette,
   X,
   Menu
@@ -100,6 +100,7 @@ const App: React.FC = () => {
   const [blueprintResult, setBlueprintResult] = useState<BlueprintResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastAiResponse, setLastAiResponse] = useState<string>("");
 
   const logoInputRef = useRef<HTMLInputElement>(null);
 
@@ -140,6 +141,7 @@ const App: React.FC = () => {
       }));
       
       setMapData(inferred);
+      setLastAiResponse(JSON.stringify(inferred));
       setStep('MAP');
     } catch (err) {
       setError("Strategic inference failed. Please check your connection.");
@@ -158,8 +160,10 @@ const App: React.FC = () => {
     setError(null);
     try {
       const gemini = new GeminiService();
-      const strategy = await gemini.generateStrategy(inputs);
+      // ALWAYS call API if productName is present, do not block. Pass lastAiResponse as context.
+      const strategy = await gemini.generateStrategy(inputs, lastAiResponse);
       setResult(strategy);
+      setLastAiResponse(JSON.stringify(strategy));
       setStep('REPORT');
       
       const entry: HistoryEntry = {
@@ -218,6 +222,7 @@ const App: React.FC = () => {
   const handleHistoryItemClick = (i: HistoryEntry) => {
     setResult(i); 
     setInputs(i.inputs); 
+    setLastAiResponse(JSON.stringify(i));
     setStep('REPORT'); 
     setActiveTab('generation'); 
     setIsMobileMenuOpen(false); 
@@ -225,12 +230,14 @@ const App: React.FC = () => {
 
   const handleStartBlueprint = async () => {
     setActiveTab('blueprint');
-    if (!blueprintResult && inputs.productName) {
+    // REMOVED !blueprintResult block to allow regeneration as per requirement.
+    if (inputs.productName) {
       setLoading(true);
       try {
         const gemini = new GeminiService();
-        const res = await gemini.generateBlueprint(inputs);
+        const res = await gemini.generateBlueprint(inputs, lastAiResponse);
         setBlueprintResult(res);
+        setLastAiResponse(JSON.stringify(res));
       } catch (err) {
         console.error("Blueprint generation failed", err);
       } finally {
@@ -245,6 +252,7 @@ const App: React.FC = () => {
     setResult(null);
     setMapData(null);
     setBlueprintResult(null);
+    setLastAiResponse("");
     setInputs(DEFAULT_INPUTS);
     setIsMobileMenuOpen(false);
     setError(null);
@@ -332,7 +340,6 @@ const App: React.FC = () => {
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none z-0"></div>
 
-        {/* PERSISTENT HEADER: Positioned as a direct flex child of the main container */}
         <header className="h-16 shrink-0 border-b border-border flex items-center justify-between px-4 md:px-8 bg-background/80 backdrop-blur-md z-[100] print:hidden shadow-lg sticky top-0">
           <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
             <button 
@@ -370,7 +377,6 @@ const App: React.FC = () => {
           )}
         </header>
 
-        {/* SCROLLABLE VIEWPORT */}
         <div className="flex-1 overflow-y-auto relative z-10 p-4 md:p-8 lg:p-12 print:p-0">
           {error && (
             <div className="max-w-md mx-auto mb-8 p-4 bg-red-900/10 border border-red-900/20 rounded-2xl text-red-400 text-xs flex items-center gap-3 animate-in slide-in-from-top-2 print:hidden">
@@ -511,11 +517,15 @@ const App: React.FC = () => {
               onGenerate={async () => {
                 setLoading(true);
                 const gemini = new GeminiService();
-                const res = await gemini.generateBlueprint(inputs);
+                const res = await gemini.generateBlueprint(inputs, lastAiResponse);
                 setBlueprintResult(res);
+                setLastAiResponse(JSON.stringify(res));
                 setLoading(false);
               }} 
-              onUpdateBlueprint={(updated) => setBlueprintResult(updated)}
+              onUpdateBlueprint={(updated) => {
+                setBlueprintResult(updated);
+                setLastAiResponse(JSON.stringify(updated));
+              }}
               conceptProvided={inputs.concept.length > 0} 
             />
           )}
@@ -527,7 +537,6 @@ const App: React.FC = () => {
               history={history} 
               onSelectHistory={handleHistoryItemClick} 
               onDeleteHistory={handleDeleteHistoryEntry}
-              // Pass current inputs to fix name comparison error in AnalyticsView
               currentInputs={inputs}
             />
           )}
