@@ -9,7 +9,9 @@ import {
   Sparkles,
   Loader2,
   AlertCircle,
-  ChevronRight
+  ChevronRight,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import Logo from './Logo';
 import { AuthMode, UserAccount } from '../types';
@@ -23,6 +25,7 @@ const AuthView: React.FC<AuthViewProps> = ({ onBack, onSuccess }) => {
   const [mode, setMode] = useState<AuthMode>('SIGN_IN');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   
   const [form, setForm] = useState({
     name: '',
@@ -33,6 +36,7 @@ const AuthView: React.FC<AuthViewProps> = ({ onBack, onSuccess }) => {
   const handleToggleMode = () => {
     setMode(mode === 'SIGN_IN' ? 'SIGN_UP' : 'SIGN_IN');
     setError(null);
+    setShowPassword(false); // Reset visibility on mode toggle
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -167,13 +171,20 @@ const AuthView: React.FC<AuthViewProps> = ({ onBack, onSuccess }) => {
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                 <input 
-                  type="password" 
+                  type={showPassword ? "text" : "password"}
                   required
                   value={form.password}
                   onChange={(e) => setForm({...form, password: e.target.value})}
-                  className="w-full bg-black/40 border border-border rounded-xl py-3 pl-11 pr-4 text-sm text-primary focus:outline-none focus:border-zinc-500 transition-all"
+                  className="w-full bg-black/40 border border-border rounded-xl py-3 pl-11 pr-12 text-sm text-primary focus:outline-none focus:border-zinc-500 transition-all"
                   placeholder="••••••••"
                 />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-primary transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
