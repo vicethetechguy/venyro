@@ -1,16 +1,7 @@
 
 import { StrategyInputs, StrategyResult, BlueprintResult, StrategyMapData } from "../types";
 
-/**
- * GeminiService handles strategic synthesis by communicating with 
- * the server-side API at /api/gemini.
- * 
- * SECURITY: This file DOES NOT contain API keys or direct SDK usage.
- */
 export class GeminiService {
-  /**
-   * Universal fetcher for proxied Gemini actions.
-   */
   private async callProxy(action: string, payload: any, history?: any, context?: string) {
     try {
       const response = await fetch('/api/gemini', {
@@ -20,34 +11,28 @@ export class GeminiService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-        throw new Error(errorData.error || `Strategic Engine Error: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({ error: 'Strategic Engine Error' }));
+        throw new Error(errorData.error || `Error: ${response.statusText}`);
       }
 
       return await response.json();
     } catch (err: any) {
-      console.error("Venyro Frontend Service Error:", err);
+      console.error("Venyro Service Error:", err);
       throw err;
     }
   }
 
-  /**
-   * Expands short commands into full, context-aware instructions.
-   */
   public expandCommand(command: string, context: string): string {
     const cmd = command.toLowerCase().trim();
-    
     const commandMap: Record<string, string> = {
-      'synthesis': 'Please create a comprehensive synthesis and structured analysis of the following strategic content:',
-      'expand': 'Please expand significantly on the following content, providing more technical depth, granular data, and market context:',
-      'summary': 'Please provide a high-level executive summary of the following content, focusing on key takeaways and action items:',
-      'strategy': 'Please refine the overarching strategic approach and suggest tactical improvements for the following business content:',
-      'refine': 'Please refine and polish the following content, improving the professional tone, clarity, and strategic impact:'
+      'synthesis': 'Provide detailed synthesis of:',
+      'expand': 'Expand technical depth on:',
+      'summary': 'Summarize key takeaways for:',
+      'strategy': 'Suggest tactical pivots for:',
+      'refine': 'Polishing clarity and impact for:'
     };
-
-    const prefix = commandMap[cmd] || `Please process the following request: "${command}" using this content as the direct context:`;
-    
-    return `${prefix}\n\n--- START PREVIOUS AI RESPONSE ---\n${context}\n--- END PREVIOUS AI RESPONSE ---`;
+    const prefix = commandMap[cmd] || `Instruction: "${command}". Context:`;
+    return `${prefix}\n\n[CONTEXT]\n${context}\n[/CONTEXT]`;
   }
 
   async inferStrategy(concept: string): Promise<StrategyMapData> {
@@ -63,24 +48,17 @@ export class GeminiService {
   }
 
   async refineBlueprint(blueprint: BlueprintResult, instruction: string, history: any[], previousContext?: string): Promise<BlueprintResult> {
-    // If we have direct previousContext, use it. Otherwise, construct from current sections.
-    let context = previousContext || blueprint.sections.map(s => `Section: ${s.title}\n${s.content}`).join('\n\n');
+    let context = previousContext || blueprint.sections.map(s => s.title).join(', ');
     const expandedInstruction = this.expandCommand(instruction, context);
     const fullHistory = [...history, { role: 'user', parts: [{ text: expandedInstruction }] }];
     return this.callProxy('refineBlueprint', blueprint, fullHistory, context);
   }
 
   async chatWithStrategy(strategy: StrategyResult, inputs: StrategyInputs, question: string, history: any[], previousContext?: string): Promise<string> {
-    // Priority: 1. previousContext passed from state, 2. most recent model message, 3. strategy summary
-    let lastContext = previousContext;
-    if (!lastContext) {
-      const lastModelMessage = [...history].reverse().find(m => m.role === 'model');
-      lastContext = lastModelMessage?.parts?.[0]?.text || strategy.summary || inputs.concept;
-    }
-
+    let lastContext = previousContext || strategy.summary || inputs.concept;
     const expandedQuestion = this.expandCommand(question, lastContext);
     const fullHistory = [...history, { role: 'user', parts: [{ text: expandedQuestion }] }];
     const data = await this.callProxy('chatWithStrategy', {}, fullHistory, lastContext);
-    return data.text || "No synthesis received from advisory engine.";
+    return data.text || "No response received.";
   }
 }

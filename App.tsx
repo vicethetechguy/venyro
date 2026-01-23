@@ -137,11 +137,10 @@ const App: React.FC = () => {
       }));
       
       setMapData(inferred);
-      const responseStr = JSON.stringify(inferred);
-      setLastAiResponse(responseStr);
+      setLastAiResponse(JSON.stringify(inferred));
       setStep('MAP');
     } catch (err: any) {
-      setError(err.message || "Synthesis engine error. Please check connectivity.");
+      setError(err.message || "Synthesis engine failed.");
     } finally {
       setLoading(false);
     }
@@ -152,11 +151,9 @@ const App: React.FC = () => {
     setError(null);
     try {
       const gemini = new GeminiService();
-      // ALWAYS proceed with synthesis. Context is derived from previous AI output if it exists.
       const strategy = await gemini.generateStrategy(inputs, lastAiResponse);
       setResult(strategy);
-      const responseStr = JSON.stringify(strategy);
-      setLastAiResponse(responseStr);
+      setLastAiResponse(JSON.stringify(strategy));
       setStep('REPORT');
       
       const entry: HistoryEntry = {
@@ -185,8 +182,7 @@ const App: React.FC = () => {
         }
       }
     } catch (err: any) {
-      // Use actual error message instead of generic "refining concept" failure message.
-      setError(err.message || "Synthesis engine failed to generate full strategy.");
+      setError(err.message || "Full synthesis failed.");
     } finally {
       setLoading(false);
     }
@@ -228,12 +224,11 @@ const App: React.FC = () => {
     setError(null);
     try {
       const gemini = new GeminiService();
-      // Always trigger AI regardless of existing state.
       const res = await gemini.generateBlueprint(inputs, lastAiResponse);
       setBlueprintResult(res);
       setLastAiResponse(JSON.stringify(res));
     } catch (err: any) {
-      setError(err.message || "Blueprint architect failed to initialize.");
+      setError(err.message || "Blueprint drafting failed.");
     } finally {
       setLoading(false);
     }

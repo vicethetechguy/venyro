@@ -1,31 +1,18 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-/**
- * Vercel Serverless Configuration
- * maxDuration is set to 60s to accommodate Gemini 3 Pro reasoning/thinking time.
- */
 export const config = {
   maxDuration: 60,
 };
 
 export default async function handler(req: any, res: any) {
-  // Security: Only allow POST requests for strategic synthesis
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { action, payload, history, context } = req.body;
-  
-  // Access secret key from Vercel Environment Variables
   const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
 
-  if (!apiKey) {
-    console.error("Venyro Backend: API_KEY is missing in environment.");
-    return res.status(500).json({ error: 'Strategic Engine Key is not configured on the server.' });
-  }
+  if (!apiKey) return res.status(500).json({ error: 'Strategic Engine Key is missing.' });
 
-  // Initialize SDK only on the server
   const ai = new GoogleGenAI({ apiKey });
 
   try {
@@ -41,20 +28,16 @@ export default async function handler(req: any, res: any) {
       case 'chatWithStrategy':
         return await handleChatWithStrategy(ai, payload, history, res);
       default:
-        return res.status(400).json({ error: 'Unsupported synthesis action' });
+        return res.status(400).json({ error: 'Action not supported' });
     }
   } catch (error: any) {
     console.error(`Gemini API Error [${action}]:`, error);
-    return res.status(500).json({ 
-      error: error.message || 'The Strategic Synthesis Engine encountered an internal error.' 
-    });
+    return res.status(500).json({ error: error.message || 'The Synthesis Engine encountered a technical error.' });
   }
 }
 
 async function handleInferStrategy(ai: any, concept: string, res: any) {
-  const prompt = `Act as a world-class venture architect. Based on this one-sentence concept: "${concept}", infer a 6-pillar strategy map.
-  Provide a concise draft, confidence level, core assumptions, and next action for each pillar.
-  Assign a venture name and Strategy Strength Score (0-100).`;
+  const prompt = `Act as a venture architect. Infer a 6-pillar strategy map for: "${concept}". Return JSON with: score (0-100), suggestedName, and pillars (vision, valueProp, market, tech, revenue, gtm). Each pillar needs: draft, confidence, assumptions[], nextAction.`;
 
   const pillarSchema = {
     type: Type.OBJECT,
@@ -71,6 +54,7 @@ async function handleInferStrategy(ai: any, concept: string, res: any) {
     model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
+      thinkingConfig: { thinkingBudget: 0 },
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -99,18 +83,13 @@ async function handleInferStrategy(ai: any, concept: string, res: any) {
 }
 
 async function handleGenerateStrategy(ai: any, inputs: any, context: string | undefined, res: any) {
-  let prompt = `Act as a world-class venture architect. Generate a strategy for: ${inputs.productName}
-  Style: ${inputs.brandStyle} | Vision: ${inputs.concept} | Transformation: ${inputs.transformation} | Moat: ${inputs.moat}
-  Return projections, streams, viability, tech stack, risk matrix, roadmap, and KPIs.`;
-
-  if (context) {
-    prompt += `\n\nRefer to this previous synthesis context for consistency: ${context}`;
-  }
+  let prompt = `Synthesize a full strategy for ${inputs.productName}. Concept: ${inputs.concept}. Previous context: ${context || 'N/A'}. Return structured JSON.`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-3-pro-preview",
+    model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
+      thinkingConfig: { thinkingBudget: 0 },
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -137,19 +116,13 @@ async function handleGenerateStrategy(ai: any, inputs: any, context: string | un
 }
 
 async function handleGenerateBlueprint(ai: any, inputs: any, context: string | undefined, res: any) {
-  let prompt = `Synthesize an institutional-grade Executive Whitepaper for ${inputs.productName}. 
-  Context: ${inputs.concept} solving ${inputs.problem}. Moat: ${inputs.moat}.
-  Format with rich Markdown.`;
-
-  if (context) {
-    prompt += `\n\nIncorporate details from this previous synthesis context: ${context}`;
-  }
+  let prompt = `Create a Venture Blueprint for ${inputs.productName}. Context: ${inputs.concept}. Previous: ${context || 'None'}. Return JSON with title and sections[] (title, content).`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-3-pro-preview",
+    model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
-      thinkingConfig: { thinkingBudget: 8000 },
+      thinkingConfig: { thinkingBudget: 0 },
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -166,16 +139,11 @@ async function handleGenerateBlueprint(ai: any, inputs: any, context: string | u
 }
 
 async function handleRefineBlueprint(ai: any, blueprint: any, history: any[], res: any) {
-  const instruction = history[history.length - 1].parts[0].text;
-  const prompt = `Refine the Strategic Whitepaper for "${blueprint.title}". 
-  Instruction: "${instruction}"
-  Return the updated FULL JSON object.`;
-
   const response = await ai.models.generateContent({
-    model: "gemini-3-pro-preview",
+    model: "gemini-3-flash-preview",
     contents: history,
     config: {
-      thinkingConfig: { thinkingBudget: 4000 },
+      thinkingConfig: { thinkingBudget: 0 },
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -196,7 +164,8 @@ async function handleChatWithStrategy(ai: any, payload: any, history: any[], res
     model: 'gemini-3-flash-preview',
     contents: history,
     config: {
-      systemInstruction: "You are Venyro, a senior strategic partner. Use Markdown tables for metrics and keep responses professional."
+      thinkingConfig: { thinkingBudget: 0 },
+      systemInstruction: "Venyro Advisor: Professional, technical, concise. Use Markdown."
     }
   });
   return res.status(200).json({ text: response.text });
