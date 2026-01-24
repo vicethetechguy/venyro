@@ -144,7 +144,37 @@ async function handleGenerateStrategy(ai: any, inputs: any, context: string | un
 }
 
 async function handleGenerateBlueprint(ai: any, inputs: any, context: string | undefined, res: any) {
-  let prompt = `Create a Venture Blueprint for ${inputs.productName}. Context: ${inputs.concept}. Previous: ${context || 'None'}. Return JSON with title and sections[] (title, content).`;
+  let prompt = `Act as an expert whitepaper writer and business analyst. Generate a professional, detailed, and investor-ready whitepaper for: "${inputs.productName}".
+  
+  CORE CONCEPT: ${inputs.concept}
+  STRATEGIC CONTEXT: ${context || 'Analyze from scratch based on name and concept.'}
+  
+  The whitepaper must be fully structured with these sections:
+  1. Executive Summary
+  2. Problem Statement
+  3. Solution Overview
+  4. Platform/Business Architecture
+  5. Product/Token Mechanics (tailor to project type)
+  6. Validation or Traction Mechanism
+  7. Investment/Monetization Model
+  8. Tokenomics (if applicable, otherwise Revenue Strategy)
+  9. Governance (if applicable, otherwise Operational Structure)
+  10. Roadmap (Short, Mid, Long term)
+  11. Security & Compliance
+  12. Market Analysis (Total Addressable Market, Competitors)
+  13. Community & Incentives
+  14. Legal Considerations
+  15. Technical Implementation (Stack, Data Flow)
+  16. Case Studies / Hypotheticals
+  17. Revenue Model Detail
+  18. Team & Advisors (suggested roles)
+  19. Risk & Challenges
+  20. Appendices & Glossary
+
+  Tone: Professional, persuasive, technical, and data-driven.
+  Placeholders: Include markers like [Insert Diagram: Technical Flow] where appropriate.
+  If inputs are insufficient, infer a logical high-fidelity strategy based on industry best practices for a venture of this type.
+  Return as JSON with "title" and "sections" array (each with "title" and "content" fields).`;
 
   const response = await withRetry(() => ai.models.generateContent({
     model: "gemini-3-flash-preview",

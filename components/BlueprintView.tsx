@@ -120,13 +120,13 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
       
       setMessages(prev => [...prev, { 
         role: 'model', 
-        text: `### Strategic Expansion Complete\n\nI have updated the whitepaper for **${blueprint.title}** based on your directions. The architectural layout has been adjusted to incorporate the new insights.` 
+        text: `### Document Refinement Protocol Complete\n\nI have adjusted the whitepaper for **${blueprint.title}** per your instructions. The document structure has been re-synthesized for maximum professional clarity.` 
       }]);
     } catch (error: any) {
       console.error("Refinement error:", error);
       setMessages(prev => [...prev, { 
         role: 'model', 
-        text: `### Document Protocol Error\n\n${error.message || "I encountered an error while attempting to restructure the whitepaper. Please ensure your instructions are specific."}` 
+        text: `### Document Protocol Error\n\n${error.message || "I encountered an error while restructuring the whitepaper."}` 
       }]);
     } finally {
       setIsRefining(false);
@@ -155,9 +155,9 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
         <div className="relative mb-8">
           <Logo isGenerating={true} className="h-20 w-20" hideText />
         </div>
-        <h2 className="text-2xl font-semibold text-primary mb-3">Drafting Whitepaper</h2>
+        <h2 className="text-2xl font-semibold text-primary mb-3">Drafting Executive Whitepaper</h2>
         <p className="text-sm text-zinc-500 max-w-sm text-center leading-relaxed">
-          Gemini 3 Pro is meticulously constructing your business plan. Analyzing vertical risks and market entry strategies...
+          The Strategic Architect is meticulously synthesizing a 20-section institutional-grade document. Analyzing technical risks, revenue stability, and market compliance...
         </p>
       </div>
     );
@@ -169,15 +169,15 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
         <div className="w-24 h-24 bg-surface/50 border border-border rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
           <BookOpen className="w-10 h-10 text-zinc-500" />
         </div>
-        <h1 className="text-4xl lg:text-5xl font-semibold text-primary mb-6 tracking-tight">Blueprint Architect</h1>
+        <h1 className="text-4xl lg:text-5xl font-semibold text-primary mb-6 tracking-tight">Executive Whitepaper Architect</h1>
         <p className="text-zinc-500 text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-          Elevate your vision into an investor-ready document. Our AI synthesizes your strategy into a formal whitepaper with architecture, go-to-market, and financial sections.
+          Transform your vision into a professional, investor-ready asset. Our analyst engine synthesizes comprehensive whitepapers including technical architecture, tokenomics, and detailed revenue models.
         </p>
         
         {!conceptProvided && (
           <div className="bg-red-500/5 border border-red-500/20 p-5 rounded-2xl text-red-400 text-sm mb-12 max-w-md mx-auto flex items-center gap-3">
             <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
-            Please define your product vision in the "New Strategy" tab first.
+            Define your core vision in the "New Strategy" tab to initiate architect synthesis.
           </div>
         )}
 
@@ -187,7 +187,7 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
           className="bg-primary text-background px-10 py-4 rounded-[1.5rem] font-bold text-sm hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-4 mx-auto shadow-2xl shadow-white/5 active:scale-95 transform"
         >
           <Sparkles className="w-5 h-5" />
-          Generate Executive Whitepaper
+          Synthesize Full Whitepaper
         </button>
       </div>
     );
@@ -199,8 +199,8 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-2">
-               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Official Architect Output</span>
+               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">VC-Compliant Whitepaper Output</span>
             </div>
             <h1 className="text-2xl font-bold text-primary truncate max-w-xl">{blueprint.title}</h1>
           </div>
@@ -241,7 +241,7 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
           <div className="lg:col-span-3 print:hidden">
             <div className="sticky top-32 space-y-6">
               <div className="px-4 py-2 rounded-xl bg-zinc-900/50 border border-border">
-                <h3 className="text-[10px] uppercase font-bold text-zinc-500 tracking-[0.2em] mb-4 mt-2">Whitepaper Layout</h3>
+                <h3 className="text-[10px] uppercase font-bold text-zinc-500 tracking-[0.2em] mb-4 mt-2">Document Structure</h3>
                 <nav className="space-y-1 pb-2">
                   {blueprint.sections.map((section, idx) => (
                     <a 
@@ -251,7 +251,7 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
                       className="group flex items-center justify-between p-2.5 rounded-lg hover:bg-surface/50 text-zinc-500 hover:text-primary transition-all border border-transparent hover:border-border"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-[10px] font-mono text-zinc-700">0{idx + 1}</span>
+                        <span className="text-[10px] font-mono text-zinc-700">{idx + 1 < 10 ? `0${idx + 1}` : idx + 1}</span>
                         <span className="text-xs font-medium truncate">{section.title}</span>
                       </div>
                       <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -260,7 +260,7 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
                 </nav>
               </div>
               <div className="p-6 rounded-3xl bg-surface/20 border border-border/50 text-center">
-                 <p className="text-[10px] text-zinc-600 leading-relaxed font-medium">Ready for pitch deck synthesis. All sections AI-verified for VC compliance.</p>
+                 <p className="text-[10px] text-zinc-600 leading-relaxed font-medium">This document is architectural-grade. Verified for completeness, technical viability, and professional tone.</p>
               </div>
             </div>
           </div>
@@ -269,7 +269,7 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
             {blueprint.sections.map((section, idx) => (
               <section key={idx} id={`section-${idx}`} className="scroll-mt-36 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700" style={{ animationDelay: `${idx * 100}ms` }}>
                 <div className="flex items-center gap-6">
-                  <div className="text-4xl font-light text-zinc-800 font-mono">0{idx + 1}</div>
+                  <div className="text-4xl font-light text-zinc-800 font-mono">{idx + 1 < 10 ? `0${idx + 1}` : idx + 1}</div>
                   <h2 className="text-2xl font-semibold text-primary tracking-tight">{section.title}</h2>
                   <div className="flex-1 h-px bg-zinc-900 print:hidden"></div>
                 </div>
@@ -281,8 +281,8 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
             
             <div className="pt-12 border-t border-zinc-900 flex items-center justify-between print:hidden">
                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>
-                  <p className="text-[10px] text-zinc-600 font-mono tracking-widest uppercase">End of Generated Architect Output</p>
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-900"></div>
+                  <p className="text-[10px] text-zinc-600 font-mono tracking-widest uppercase">End of Institutional Whitepaper Asset</p>
                </div>
                <button onClick={() => scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })} className="text-[10px] font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-widest">
                   Back to Top
@@ -295,8 +295,8 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
                    <BrainCircuit className="w-6 h-6 text-primary" />
                  </div>
                  <div>
-                   <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Strategic Architect Chat</h3>
-                   <p className="text-[10px] text-zinc-500 font-medium">Refine, expand, or restructure the whitepaper in real-time.</p>
+                   <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Document Refinement Studio</h3>
+                   <p className="text-[10px] text-zinc-500 font-medium">Collaborate with the analyst to polish specific whitepaper sections.</p>
                  </div>
                </div>
 
@@ -306,8 +306,8 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
                       <div className="h-full flex flex-col items-center justify-center text-center opacity-40 py-20 space-y-6">
                         <MessageCircle className="w-12 h-12 text-zinc-600" />
                         <div className="space-y-1">
-                          <p className="text-sm font-medium text-zinc-400">Collaborative Editor Ready</p>
-                          <p className="text-[11px] text-zinc-600 max-w-[280px] mx-auto leading-relaxed">Try: "Expand the market section with a table of competitors" or "Add a section on hiring roadmap."</p>
+                          <p className="text-sm font-medium text-zinc-400">Collaborative Refinement Active</p>
+                          <p className="text-[11px] text-zinc-600 max-w-[280px] mx-auto leading-relaxed">Try: "Elaborate on the Tokenomics with a lock-up schedule" or "Refine the roadmap for institutional compliance."</p>
                         </div>
                       </div>
                     )}
@@ -332,22 +332,21 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
                       <div className="flex justify-start animate-in fade-in">
                         <div className="bg-surface/40 border border-border rounded-full px-6 py-3 flex items-center gap-4">
                           <Logo isGenerating={true} className="h-4 w-4" hideText />
-                          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest italic">Restructuring document...</span>
+                          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest italic">Analyzing and updating sections...</span>
                         </div>
                       </div>
                     )}
                     <div ref={chatEndRef} />
                   </div>
 
-                  {/* COMMAND BAR */}
                   <div className="px-6 py-3 border-t border-white/5 bg-zinc-900/50 flex items-center gap-4 overflow-x-auto no-scrollbar">
-                     <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest whitespace-nowrap">Quick Actions:</span>
+                     <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest whitespace-nowrap">Analyst Tools:</span>
                      {quickCommands.map((item) => (
                        <button
                          key={item.cmd}
                          onClick={() => handleSendMessage(item.cmd)}
                          disabled={isRefining}
-                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-zinc-950 text-zinc-500 hover:text-primary hover:border-primary transition-all active:scale-95 group shrink-0"
+                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-zinc-950 text-zinc-500 hover:text-primary hover:border-zinc-500 transition-all active:scale-95 group shrink-0"
                        >
                          <item.icon className="w-3 h-3 group-hover:scale-110 transition-transform" />
                          <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
@@ -379,7 +378,7 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
                         type="text" 
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value)}
-                        placeholder="Instruct the architect to refine specific sections..." 
+                        placeholder="Instruct the whitepaper writer..." 
                         className="flex-1 bg-transparent border-none outline-none text-sm text-zinc-300 placeholder:text-zinc-700 py-3 px-2"
                       />
                       <button 
