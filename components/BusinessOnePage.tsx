@@ -34,12 +34,7 @@ interface AuctionViewProps {
   result: StrategyResult;
   onClose: () => void;
   highestBid: number;
-  bidAmount: string;
-  setBidAmount: (val: string) => void;
-  isPlacingBid: boolean;
-  bidSuccess: boolean;
-  transactionStatus: string;
-  handlePlaceBid: () => void;
+  onBidSubmitted: (newBid: number) => void;
   timeLeft: string;
 }
 
@@ -48,221 +43,256 @@ const AuctionView: React.FC<AuctionViewProps> = ({
   result,
   onClose,
   highestBid,
-  bidAmount,
-  setBidAmount,
-  isPlacingBid,
-  bidSuccess,
-  transactionStatus,
-  handlePlaceBid,
+  onBidSubmitted,
   timeLeft
-}) => (
-  <div className="fixed inset-0 z-[500] bg-background animate-in fade-in slide-in-from-right-4 duration-500 flex flex-col overflow-hidden">
-    {/* DEX Header */}
-    <nav className="h-16 md:h-20 border-b border-white/5 bg-zinc-950 px-4 md:px-8 flex items-center justify-between shrink-0">
-      <div className="flex items-center gap-4 overflow-hidden">
-        <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors shrink-0">
-          <ArrowLeft className="w-5 h-5 text-zinc-500" />
-        </button>
-        <div className="flex flex-col min-w-0">
-          <h2 className="text-sm font-bold text-primary flex items-center gap-2">
-            <Scale className="w-3.5 h-3.5" /> Business Dex
-          </h2>
-          <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono truncate">Protocol: {inputs.productName}</p>
-        </div>
-      </div>
-      <div className="flex items-center gap-4 md:gap-8">
-         <div className="hidden sm:flex flex-col items-end">
-            <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Auction Ends In</span>
-            <span className="text-xs font-mono text-emerald-400 font-bold">{timeLeft}</span>
-         </div>
-         <div className="w-px h-8 bg-white/5 hidden sm:block"></div>
-         <button onClick={onClose} className="text-zinc-500 hover:text-white p-2">
-           <X className="w-5 h-5" />
-         </button>
-      </div>
-    </nav>
+}) => {
+  // Move input state here to prevent parent re-renders from killing focus
+  const [bidAmount, setBidAmount] = useState('');
+  const [isPlacingBid, setIsPlacingBid] = useState(false);
+  const [bidSuccess, setBidSuccess] = useState(false);
+  const [transactionStatus, setTransactionStatus] = useState('');
 
-    {/* DEX Main Layout */}
-    <div className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-black">
-      
-      {/* Left Column: Market Depth */}
-      <div className="w-full lg:w-72 xl:w-80 border-r border-white/5 flex flex-col shrink-0 bg-zinc-950/50 order-3 lg:order-1 max-h-[30vh] lg:max-h-full overflow-hidden">
-        <div className="p-4 border-b border-white/5 flex items-center justify-between sticky top-0 bg-zinc-950 z-10 shrink-0">
-          <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-            <History className="w-3 h-3" /> Bid History
-          </h3>
-          <span className="text-[8px] font-bold text-zinc-700 animate-pulse">LIVE</span>
-        </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
-          {[
-            { addr: '0x8f2...e421', amount: highestBid, time: 'Now' },
-            { addr: '0x1a4...d390', amount: highestBid - 6500, time: '14m ago' },
-            { addr: '0x7c9...b112', amount: highestBid - 15000, time: '1h ago' },
-            { addr: '0x2d4...f901', amount: highestBid - 30000, time: '4h ago' },
-            { addr: '0xef0...a842', amount: highestBid - 47000, time: 'Yesterday' },
-            { addr: '0x3d1...c992', amount: highestBid - 52000, time: '2d ago' },
-          ].map((bid, i) => (
-            <div key={i} className={`flex items-center justify-between group ${i === 0 ? 'opacity-100' : 'opacity-40'}`}>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-mono text-zinc-300">{bid.addr}</span>
-                <span className="text-[8px] text-zinc-600">{bid.time}</span>
-              </div>
-              <div className="text-right">
-                <span className={`text-[11px] font-bold font-mono ${i === 0 ? 'text-emerald-400' : 'text-zinc-400'}`}>
-                  ${bid.amount.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="p-4 bg-zinc-900/30 border-t border-white/5 shrink-0 hidden lg:block">
-           <div className="flex justify-between items-center mb-2">
-              <span className="text-[9px] font-bold text-zinc-500 uppercase">Valuation Floor</span>
-              <span className="text-xs font-mono font-bold text-zinc-400">$185,000</span>
-           </div>
-           <div className="flex justify-between items-center">
-              <span className="text-[9px] font-bold text-zinc-500 uppercase">Revenue Multiplier</span>
-              <span className="text-xs font-mono font-bold text-zinc-400">2.54x</span>
-           </div>
-        </div>
-      </div>
+  const handlePlaceBid = async () => {
+    if (!bidAmount || parseFloat(bidAmount) <= highestBid) return;
+    setIsPlacingBid(true);
+    setTransactionStatus('Initiating Escrow...');
+    
+    await new Promise(r => setTimeout(r, 1000));
+    setTransactionStatus('Securing Funds on Base...');
+    
+    await new Promise(r => setTimeout(r, 1500));
+    setTransactionStatus('Finalizing Bid Entry...');
+    
+    await new Promise(r => setTimeout(r, 1000));
+    const finalBid = parseFloat(bidAmount);
+    onBidSubmitted(finalBid);
+    setIsPlacingBid(false);
+    setBidSuccess(true);
+    setTransactionStatus('');
+    
+    setTimeout(() => {
+      setBidSuccess(false);
+      setBidAmount('');
+    }, 4000);
+  };
 
-      {/* Middle Column: Visualizations */}
-      <div className="flex-1 flex flex-col overflow-hidden order-1 lg:order-2">
-        <div className="p-4 md:p-6 lg:p-8 flex-1 overflow-y-auto space-y-6 lg:space-y-8 scrollbar-hide">
-           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
-              <div className="p-5 lg:p-6 rounded-2xl bg-zinc-900 border border-white/5 space-y-2">
-                 <div className="flex items-center justify-between">
-                   <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Protocol Market Cap</p>
-                   <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                 </div>
-                 <h4 className="text-2xl lg:text-3xl font-bold text-primary font-mono truncate">${(highestBid * 4.5).toLocaleString()}</h4>
-                 <p className="text-[9px] text-zinc-600">Calculated based on current bid multiples.</p>
-              </div>
-              <div className="p-5 lg:p-6 rounded-2xl bg-zinc-900 border border-white/5 space-y-2">
-                 <div className="flex items-center justify-between">
-                   <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Ownership Epoch</p>
-                   <Clock className="w-3.5 h-3.5 text-zinc-500" />
-                 </div>
-                 <h4 className="text-2xl lg:text-3xl font-bold text-primary font-mono">FIN-094</h4>
-                 <p className="text-[9px] text-zinc-600">Current bidding window epoch.</p>
-              </div>
+  return (
+    <div className="fixed inset-0 z-[500] bg-background animate-in fade-in slide-in-from-right-4 duration-500 flex flex-col overflow-hidden">
+      {/* DEX Header */}
+      <nav className="h-16 md:h-20 border-b border-white/5 bg-zinc-950 px-4 md:px-8 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-4 overflow-hidden">
+          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors shrink-0">
+            <ArrowLeft className="w-5 h-5 text-zinc-500" />
+          </button>
+          <div className="flex flex-col min-w-0">
+            <h2 className="text-sm font-bold text-primary flex items-center gap-2">
+              <Scale className="w-3.5 h-3.5" /> Business Dex
+            </h2>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono truncate">Protocol: {inputs.productName}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 md:gap-8">
+           <div className="hidden sm:flex flex-col items-end">
+              <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Auction Ends In</span>
+              <span className="text-xs font-mono text-emerald-400 font-bold">{timeLeft}</span>
            </div>
+           <div className="w-px h-8 bg-white/5 hidden sm:block"></div>
+           <button onClick={onClose} className="text-zinc-500 hover:text-white p-2">
+             <X className="w-5 h-5" />
+           </button>
+        </div>
+      </nav>
 
-           <div className="p-4 md:p-8 rounded-[2rem] md:rounded-[2.5rem] bg-zinc-950 border border-white/5 space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Valuation Trajectory (12M)</h3>
-                <div className="flex gap-4">
-                   <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>
-                      <span className="text-[9px] text-zinc-600 font-bold uppercase">Synthesized</span>
-                   </div>
-                   <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span className="text-[9px] text-zinc-400 font-bold uppercase">Market Demand</span>
-                   </div>
+      {/* DEX Main Layout */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-black">
+        
+        {/* Left Column: Market Depth */}
+        <div className="w-full lg:w-72 xl:w-80 border-r border-white/5 flex flex-col shrink-0 bg-zinc-950/50 order-3 lg:order-1 max-h-[30vh] lg:max-h-full overflow-hidden">
+          <div className="p-4 border-b border-white/5 flex items-center justify-between sticky top-0 bg-zinc-950 z-10 shrink-0">
+            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+              <History className="w-3 h-3" /> Bid History
+            </h3>
+            <span className="text-[8px] font-bold text-zinc-700 animate-pulse">LIVE</span>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
+            {[
+              { addr: '0x8f2...e421', amount: highestBid, time: 'Now' },
+              { addr: '0x1a4...d390', amount: highestBid - 6500, time: '14m ago' },
+              { addr: '0x7c9...b112', amount: highestBid - 15000, time: '1h ago' },
+              { addr: '0x2d4...f901', amount: highestBid - 30000, time: '4h ago' },
+              { addr: '0xef0...a842', amount: highestBid - 47000, time: 'Yesterday' },
+              { addr: '0x3d1...c992', amount: highestBid - 52000, time: '2d ago' },
+            ].map((bid, i) => (
+              <div key={i} className={`flex items-center justify-between group ${i === 0 ? 'opacity-100' : 'opacity-40'}`}>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-mono text-zinc-300">{bid.addr}</span>
+                  <span className="text-[8px] text-zinc-600">{bid.time}</span>
+                </div>
+                <div className="text-right">
+                  <span className={`text-[11px] font-bold font-mono ${i === 0 ? 'text-emerald-400' : 'text-zinc-400'}`}>
+                    ${bid.amount.toLocaleString()}
+                  </span>
                 </div>
               </div>
-              <div className="h-48 md:h-64 lg:h-80 w-full overflow-hidden">
-                 <RevenueChart data={result.projections} />
-              </div>
-           </div>
-        </div>
-      </div>
-
-      {/* Right Column: Execution Terminal */}
-      <div className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col shrink-0 bg-zinc-950 order-2 lg:order-3 z-20">
-        <div className="p-5 border-b border-white/5 shrink-0">
-          <h3 className="text-xs font-bold text-primary uppercase tracking-widest">Execution Terminal</h3>
-        </div>
-        
-        <div className="flex-1 p-5 space-y-6 overflow-y-auto scrollbar-hide">
-          <div className="space-y-6">
-            <div className="p-4 rounded-xl bg-black border border-white/10 space-y-3 shadow-inner">
-               <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-bold text-zinc-500 uppercase">Current High Bid</span>
-                  <span className="text-base font-mono font-bold text-emerald-400">${highestBid.toLocaleString()}</span>
-               </div>
-               <div className="h-px bg-white/5"></div>
-               <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-bold text-zinc-500 uppercase">Minimum Inc.</span>
-                  <span className="text-[10px] font-mono text-zinc-400">+$1,500</span>
-               </div>
-            </div>
-
-            <div className="space-y-4">
-               <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Acquisition Offer (USDC)</label>
-               
-               <div className="space-y-4">
-                  <div className="relative group">
-                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-primary transition-colors">
-                       <DollarSign className="w-5 h-5" />
-                     </div>
-                     <input 
-                       type="number" 
-                       inputMode="decimal"
-                       value={bidAmount}
-                       onChange={(e) => setBidAmount(e.target.value)}
-                       placeholder={(highestBid + 1500).toString()}
-                       className="w-full bg-zinc-900 border border-white/10 rounded-xl pl-12 pr-14 py-5 text-2xl font-bold font-mono text-primary focus:outline-none focus:border-primary/40 focus:bg-black transition-all placeholder:text-zinc-800 shadow-xl"
-                     />
-                     <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-600">USDC</div>
-                  </div>
-
-                  {bidSuccess ? (
-                    <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center gap-3 text-center animate-in zoom-in duration-300">
-                      <CheckCircle2 className="w-10 h-10 text-emerald-500" />
-                      <div>
-                        <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Bid Submitted</p>
-                        <p className="text-[10px] text-zinc-500 mt-1 font-mono">TX: 0x{Math.random().toString(16).slice(2, 10)}...</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <button 
-                        onClick={handlePlaceBid}
-                        disabled={isPlacingBid || !bidAmount || parseFloat(bidAmount) <= highestBid}
-                        className="w-full py-5 bg-primary text-black rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white active:scale-95 transition-all disabled:opacity-30 shadow-2xl flex items-center justify-center gap-3"
-                      >
-                        {isPlacingBid ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-4 h-4 fill-current" /> Place Bid</>}
-                      </button>
-                      {isPlacingBid && (
-                        <p className="text-[10px] text-center text-zinc-500 animate-pulse font-mono tracking-widest">{transactionStatus}</p>
-                      )}
-                    </div>
-                  )}
-               </div>
-
-               <div className="grid grid-cols-3 gap-2">
-                  {[1500, 5000, 10000].map((inc) => (
-                    <button 
-                      key={inc}
-                      onClick={() => setBidAmount((Math.max(highestBid, parseFloat(bidAmount) || 0) + inc).toString())}
-                      className="py-2.5 bg-zinc-900 border border-white/5 rounded-lg text-[9px] font-bold text-zinc-500 hover:text-primary hover:border-white/20 transition-all uppercase tracking-widest"
-                    >
-                      +{inc.toLocaleString()}
-                    </button>
-                  ))}
-               </div>
-            </div>
+            ))}
+          </div>
+          <div className="p-4 bg-zinc-900/30 border-t border-white/5 shrink-0 hidden lg:block">
+             <div className="flex justify-between items-center mb-2">
+                <span className="text-[9px] font-bold text-zinc-500 uppercase">Valuation Floor</span>
+                <span className="text-xs font-mono font-bold text-zinc-400">$185,000</span>
+             </div>
+             <div className="flex justify-between items-center">
+                <span className="text-[9px] font-bold text-zinc-500 uppercase">Revenue Multiplier</span>
+                <span className="text-xs font-mono font-bold text-zinc-400">2.54x</span>
+             </div>
           </div>
         </div>
 
-        <div className="p-5 bg-zinc-900/50 border-t border-white/5 space-y-4 shrink-0">
-           <div className="flex items-center justify-between text-[10px]">
-              <span className="text-zinc-500">Available Liquidity</span>
-              <span className="text-primary font-bold font-mono">14,208.50 USDC</span>
-           </div>
-           <button className="w-full py-3 border border-white/10 rounded-xl text-[9px] font-bold text-zinc-400 uppercase tracking-widest hover:text-primary hover:border-white/30 transition-all">
-              Add Funds
-           </button>
+        {/* Middle Column: Visualizations */}
+        <div className="flex-1 flex flex-col overflow-hidden order-1 lg:order-2">
+          <div className="p-4 md:p-6 lg:p-8 flex-1 overflow-y-auto space-y-6 lg:space-y-8 scrollbar-hide">
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+                <div className="p-5 lg:p-6 rounded-2xl bg-zinc-900 border border-white/5 space-y-2">
+                   <div className="flex items-center justify-between">
+                     <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Protocol Market Cap</p>
+                     <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                   </div>
+                   <h4 className="text-2xl lg:text-3xl font-bold text-primary font-mono truncate">${(highestBid * 4.5).toLocaleString()}</h4>
+                   <p className="text-[9px] text-zinc-600">Calculated based on current bid multiples.</p>
+                </div>
+                <div className="p-5 lg:p-6 rounded-2xl bg-zinc-900 border border-white/5 space-y-2">
+                   <div className="flex items-center justify-between">
+                     <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Ownership Epoch</p>
+                     <Clock className="w-3.5 h-3.5 text-zinc-500" />
+                   </div>
+                   <h4 className="text-2xl lg:text-3xl font-bold text-primary font-mono">FIN-094</h4>
+                   <p className="text-[9px] text-zinc-600">Current bidding window epoch.</p>
+                </div>
+             </div>
+
+             <div className="p-4 md:p-8 rounded-[2rem] md:rounded-[2.5rem] bg-zinc-950 border border-white/5 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Valuation Trajectory (12M)</h3>
+                  <div className="flex gap-4">
+                     <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>
+                        <span className="text-[9px] text-zinc-600 font-bold uppercase">Synthesized</span>
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                        <span className="text-[9px] text-zinc-400 font-bold uppercase">Market Demand</span>
+                     </div>
+                  </div>
+                </div>
+                <div className="h-48 md:h-64 lg:h-80 w-full overflow-hidden">
+                   <RevenueChart data={result.projections} />
+                </div>
+             </div>
+          </div>
+        </div>
+
+        {/* Right Column: Execution Terminal */}
+        <div className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col shrink-0 bg-zinc-950 order-2 lg:order-3 z-20">
+          <div className="p-5 border-b border-white/5 shrink-0">
+            <h3 className="text-xs font-bold text-primary uppercase tracking-widest">Execution Terminal</h3>
+          </div>
+          
+          <div className="flex-1 p-5 space-y-6 overflow-y-auto scrollbar-hide">
+            <div className="space-y-6">
+              <div className="p-4 rounded-xl bg-black border border-white/10 space-y-3 shadow-inner">
+                 <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-bold text-zinc-500 uppercase">Current High Bid</span>
+                    <span className="text-base font-mono font-bold text-emerald-400">${highestBid.toLocaleString()}</span>
+                 </div>
+                 <div className="h-px bg-white/5"></div>
+                 <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-bold text-zinc-500 uppercase">Minimum Inc.</span>
+                    <span className="text-[10px] font-mono text-zinc-400">+$1,500</span>
+                 </div>
+              </div>
+
+              <div className="space-y-4">
+                 <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Acquisition Offer (USDC)</label>
+                 
+                 <div className="space-y-4">
+                    <div className="relative group">
+                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-primary transition-colors">
+                         <DollarSign className="w-5 h-5" />
+                       </div>
+                       {/* Using type="text" + inputMode="decimal" for better focus stability on mobile */}
+                       <input 
+                         type="text" 
+                         inputMode="decimal"
+                         value={bidAmount}
+                         onChange={(e) => {
+                           const val = e.target.value;
+                           if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                             setBidAmount(val);
+                           }
+                         }}
+                         placeholder={(highestBid + 1500).toString()}
+                         className="w-full bg-zinc-900 border border-white/10 rounded-xl pl-12 pr-14 py-5 text-2xl font-bold font-mono text-primary focus:outline-none focus:border-primary/40 focus:bg-black transition-all placeholder:text-zinc-800 shadow-xl"
+                       />
+                       <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-600">USDC</div>
+                    </div>
+
+                    {bidSuccess ? (
+                      <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center gap-3 text-center animate-in zoom-in duration-300">
+                        <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                        <div>
+                          <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Bid Submitted</p>
+                          <p className="text-[10px] text-zinc-500 mt-1 font-mono">TX: 0x{Math.random().toString(16).slice(2, 10)}...</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <button 
+                          onClick={handlePlaceBid}
+                          disabled={isPlacingBid || !bidAmount || parseFloat(bidAmount) <= highestBid}
+                          className="w-full py-5 bg-primary text-black rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white active:scale-95 transition-all disabled:opacity-30 shadow-2xl flex items-center justify-center gap-3"
+                        >
+                          {isPlacingBid ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-4 h-4 fill-current" /> Place Bid</>}
+                        </button>
+                        {isPlacingBid && (
+                          <p className="text-[10px] text-center text-zinc-500 animate-pulse font-mono tracking-widest">{transactionStatus}</p>
+                        )}
+                      </div>
+                    )}
+                 </div>
+
+                 <div className="grid grid-cols-3 gap-2">
+                    {[1500, 5000, 10000].map((inc) => (
+                      <button 
+                        key={inc}
+                        onClick={() => {
+                          const currentVal = parseFloat(bidAmount) || highestBid;
+                          setBidAmount((currentVal + inc).toString());
+                        }}
+                        className="py-2.5 bg-zinc-900 border border-white/5 rounded-lg text-[9px] font-bold text-zinc-500 hover:text-primary hover:border-white/20 transition-all uppercase tracking-widest"
+                      >
+                        +{inc.toLocaleString()}
+                      </button>
+                    ))}
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-5 bg-zinc-900/50 border-t border-white/5 space-y-4 shrink-0">
+             <div className="flex items-center justify-between text-[10px]">
+                <span className="text-zinc-500">Available Liquidity</span>
+                <span className="text-primary font-bold font-mono">14,208.50 USDC</span>
+             </div>
+             <button className="w-full py-3 border border-white/10 rounded-xl text-[9px] font-bold text-zinc-400 uppercase tracking-widest hover:text-primary hover:border-white/30 transition-all">
+                Add Funds
+             </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-// Added missing interface for BusinessAcquisitionPage component props
 interface BusinessAcquisitionPageProps {
   result: StrategyResult;
   inputs: StrategyInputs;
@@ -285,12 +315,8 @@ const BusinessAcquisitionPage: React.FC<BusinessAcquisitionPageProps> = ({
   const [isChatOpen, setIsChatOpen] = useState(false);
   
   const [showAuction, setShowAuction] = useState(initialShowAuction);
-  const [bidAmount, setBidAmount] = useState('');
-  const [isPlacingBid, setIsPlacingBid] = useState(false);
-  const [bidSuccess, setBidSuccess] = useState(false);
   const [highestBid, setHighestBid] = useState(245000);
   const [timeLeft, setTimeLeft] = useState('42h 12m 08s');
-  const [transactionStatus, setTransactionStatus] = useState<string>('');
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -327,51 +353,6 @@ const BusinessAcquisitionPage: React.FC<BusinessAcquisitionPageProps> = ({
     }, 1500);
   };
 
-  const handlePlaceBid = async () => {
-    if (!bidAmount || parseFloat(bidAmount) <= highestBid) return;
-    setIsPlacingBid(true);
-    setTransactionStatus('Initiating Escrow...');
-    
-    await new Promise(r => setTimeout(r, 1000));
-    setTransactionStatus('Securing Funds on Base...');
-    
-    await new Promise(r => setTimeout(r, 1500));
-    setTransactionStatus('Finalizing Bid Entry...');
-    
-    await new Promise(r => setTimeout(r, 1000));
-    setHighestBid(parseFloat(bidAmount));
-    setIsPlacingBid(false);
-    setBidSuccess(true);
-    setTransactionStatus('');
-    
-    setTimeout(() => {
-      setBidSuccess(false);
-      setBidAmount('');
-    }, 4000);
-  };
-
-  const handleConfirmStake = async () => {
-    if (!bidAmount || parseFloat(bidAmount) <= 0) return;
-    setIsPlacingBid(true);
-    setTransactionStatus('Approving USDC...');
-    
-    await new Promise(r => setTimeout(r, 1200));
-    setTransactionStatus('Confirming Proof-of-Stake...');
-    
-    await new Promise(r => setTimeout(r, 1000));
-    setTransactionStatus('Syncing Yield Node...');
-    
-    await new Promise(r => setTimeout(r, 800));
-    setIsPlacingBid(false);
-    setBidSuccess(true);
-    setTransactionStatus('');
-    
-    setTimeout(() => {
-      setBidSuccess(false);
-      setBidAmount('');
-    }, 5000);
-  };
-
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-primary/20 font-sans relative overflow-x-hidden pb-20">
       {showAuction && (
@@ -380,12 +361,7 @@ const BusinessAcquisitionPage: React.FC<BusinessAcquisitionPageProps> = ({
           result={result}
           onClose={() => setShowAuction(false)}
           highestBid={highestBid}
-          bidAmount={bidAmount}
-          setBidAmount={setBidAmount}
-          isPlacingBid={isPlacingBid}
-          bidSuccess={bidSuccess}
-          transactionStatus={transactionStatus}
-          handlePlaceBid={handlePlaceBid}
+          onBidSubmitted={(val) => setHighestBid(val)}
           timeLeft={timeLeft}
         />
       )}
@@ -495,87 +471,6 @@ const BusinessAcquisitionPage: React.FC<BusinessAcquisitionPageProps> = ({
                          <h4 className="text-3xl font-bold text-primary">30 Days</h4>
                          <p className="text-[10px] text-zinc-500">Security buffer for protocol architectural stability.</p>
                       </div>
-                   </div>
-
-                   <div className="p-8 rounded-[2rem] bg-black/40 border border-white/5 space-y-6">
-                      <div className="flex items-center justify-between">
-                         <h3 className="text-sm font-bold text-primary">Protocol Staking Terminal</h3>
-                         <span className="px-2 py-1 rounded bg-zinc-900 border border-white/10 text-[8px] font-mono text-zinc-500 uppercase">Pool: {Math.random().toString(16).slice(2, 8).toUpperCase()}</span>
-                      </div>
-
-                      {bidSuccess ? (
-                        <div className="py-10 flex flex-col items-center justify-center text-center space-y-4 animate-in zoom-in duration-300">
-                           <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                              <CheckCircle2 className="w-8 h-8" />
-                           </div>
-                           <div className="space-y-1">
-                              <h4 className="text-lg font-bold text-primary">Stake Confirmed</h4>
-                              <p className="text-xs text-zinc-500">Your capital is now earning protocol yield on Base.</p>
-                              <p className="text-[10px] text-zinc-600 mt-2 font-mono">TX: 0x{Math.random().toString(16).slice(2, 24)}</p>
-                           </div>
-                           <button onClick={() => setBidSuccess(false)} className="px-6 py-2 bg-zinc-900 border border-white/5 rounded-xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Stake More</button>
-                        </div>
-                      ) : (
-                        <div className="space-y-6">
-                           <div className="space-y-3">
-                              <div className="flex justify-between items-center px-1">
-                                <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Stake Amount (USDC)</label>
-                                <span className="text-[9px] text-zinc-600 font-mono">Available: 4,281.50 USDC</span>
-                              </div>
-                              <div className="relative group">
-                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-primary transition-colors">
-                                   <Coins className="w-5 h-5" />
-                                 </div>
-                                 <input 
-                                  type="number" 
-                                  inputMode="decimal"
-                                  value={bidAmount}
-                                  onChange={(e) => setBidAmount(e.target.value)}
-                                  placeholder="0.00"
-                                  className="w-full bg-black/40 border border-white/10 rounded-2xl pl-12 pr-14 py-5 text-2xl font-bold font-mono text-primary focus:outline-none focus:border-primary/40 focus:bg-black transition-all placeholder:text-zinc-800 shadow-lg"
-                                 />
-                                 <button onClick={() => setBidAmount('4281')} className="absolute right-4 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-zinc-900 border border-white/10 rounded-lg text-[8px] font-black text-zinc-500 hover:text-primary hover:border-primary/30 transition-all">MAX</button>
-                              </div>
-                              
-                              <div className="grid grid-cols-4 gap-2">
-                                {[500, 1000, 2500, 4000].map((val) => (
-                                  <button 
-                                    key={val}
-                                    onClick={() => setBidAmount(val.toString())}
-                                    className="py-2 bg-zinc-900 border border-white/5 rounded-lg text-[8px] font-bold text-zinc-500 hover:text-primary transition-all uppercase tracking-widest"
-                                  >
-                                    ${val.toLocaleString()}
-                                  </button>
-                                ))}
-                              </div>
-                           </div>
-
-                           <div className="p-5 rounded-2xl bg-zinc-900/50 border border-white/5 space-y-4 shadow-inner">
-                              <div className="flex justify-between text-[10px]">
-                                 <span className="text-zinc-500 uppercase font-bold tracking-widest">Est. Monthly Yield</span>
-                                 <span className="text-emerald-500 font-bold font-mono">+{bidAmount ? (parseFloat(bidAmount) * 0.0103).toFixed(2) : '0.00'} USDC</span>
-                              </div>
-                              <div className="h-px bg-white/5"></div>
-                              <div className="flex justify-between text-[10px]">
-                                 <span className="text-zinc-500 uppercase font-bold tracking-widest">Protocol Fee</span>
-                                 <span className="text-zinc-400 font-mono">0.00 USDC</span>
-                              </div>
-                           </div>
-
-                           <div className="space-y-3">
-                             <button 
-                              onClick={handleConfirmStake}
-                              disabled={isPlacingBid || !bidAmount || parseFloat(bidAmount) <= 0}
-                              className="w-full py-5 bg-primary text-black rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-30 shadow-2xl"
-                             >
-                                {isPlacingBid ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-4 h-4 fill-current" /> Confirm Stake</>}
-                             </button>
-                             {isPlacingBid && (
-                               <p className="text-[10px] text-center text-zinc-500 animate-pulse font-mono tracking-widest">{transactionStatus}</p>
-                             )}
-                           </div>
-                        </div>
-                      )}
                    </div>
 
                    <p className="text-[10px] text-zinc-600 text-center italic font-light">"Staking directly supports the protocol's architectural growth & liquidity."</p>

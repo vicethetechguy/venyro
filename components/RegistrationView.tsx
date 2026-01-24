@@ -167,7 +167,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
   if (mode === 'CHOICE') {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 animate-in fade-in duration-700">
-        <div className="max-w-4xl w-full space-y-8 md:space-y-12">
+        <div className="max-w-4xl w-full space-y-6 md:space-y-10">
           <div className="text-center space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
               <ShieldCheck className="w-3 h-3 text-primary" /> On-chain Registry
@@ -176,42 +176,42 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
             <p className="text-sm md:text-lg text-zinc-500 max-w-xl mx-auto font-light">Choose your entry point into the Base ecosystem. Create a new entity from scratch or bridge your existing architecture.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <button 
               onClick={() => startRegistration(true)}
-              className="group p-6 md:p-8 rounded-[2rem] bg-surface/20 border border-border hover:border-primary/50 transition-all duration-500 text-left space-y-4 md:space-y-6 relative overflow-hidden"
+              className="group p-5 md:p-6 rounded-[1.5rem] bg-surface/20 border border-border hover:border-primary/50 transition-all duration-500 text-left space-y-3 relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Plus className="w-16 h-16" />
+                <Plus className="w-12 h-12" />
               </div>
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary flex items-center justify-center text-black shadow-xl group-hover:scale-110 transition-transform">
-                <Sparkles className="w-6 h-6 md:w-7 md:h-7" />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary flex items-center justify-center text-black shadow-xl group-hover:scale-110 transition-transform">
+                <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
               </div>
-              <div className="space-y-1.5">
-                <h3 className="text-lg md:text-2xl font-bold text-primary">Incept New Business</h3>
-                <p className="text-[11px] md:text-sm text-zinc-500 font-light leading-relaxed">Synthesize a fresh venture architecture, deploy new smart contracts, and launch on Base.</p>
+              <div className="space-y-1">
+                <h3 className="text-lg md:text-xl font-bold text-primary">Incept New Business</h3>
+                <p className="text-[10px] md:text-xs text-zinc-500 font-light leading-relaxed">Synthesize a fresh venture architecture, deploy new smart contracts, and launch on Base.</p>
               </div>
-              <div className="flex items-center gap-2 text-[9px] font-bold text-primary uppercase tracking-widest pt-2">
-                Start Inception <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <div className="flex items-center gap-2 text-[8px] font-bold text-primary uppercase tracking-widest pt-1">
+                Start Inception <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
 
             <button 
               onClick={() => startRegistration(false)}
-              className="group p-6 md:p-8 rounded-[2rem] bg-surface/20 border border-border hover:border-emerald-500/50 transition-all duration-500 text-left space-y-4 md:space-y-6 relative overflow-hidden"
+              className="group p-5 md:p-6 rounded-[1.5rem] bg-surface/20 border border-border hover:border-emerald-500/50 transition-all duration-500 text-left space-y-3 relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                <History className="w-16 h-16" />
+                <History className="w-12 h-12" />
               </div>
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-zinc-900 border border-border flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
-                <Plus className="w-6 h-6 md:w-7 md:h-7" />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-zinc-900 border border-border flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+                <Plus className="w-5 h-5 md:w-6 md:h-6" />
               </div>
-              <div className="space-y-1.5">
-                <h3 className="text-lg md:text-2xl font-bold text-primary">Plug-in Existing Asset</h3>
-                <p className="text-[11px] md:text-sm text-zinc-500 font-light leading-relaxed">Import an already existing business protocol or contract to leverage the Venyro yield engine.</p>
+              <div className="space-y-1">
+                <h3 className="text-lg md:text-xl font-bold text-primary">Plug-in Existing Asset</h3>
+                <p className="text-[10px] md:text-xs text-zinc-500 font-light leading-relaxed">Import an already existing business protocol or contract to leverage the Venyro yield engine.</p>
               </div>
-              <div className="flex items-center gap-2 text-[9px] font-bold text-emerald-500 uppercase tracking-widest pt-2">
-                Verify & Plug-in <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <div className="flex items-center gap-2 text-[8px] font-bold text-emerald-500 uppercase tracking-widest pt-1">
+                Verify & Plug-in <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
           </div>

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Search, 
   Briefcase, 
@@ -10,7 +10,7 @@ import {
   Star,
   Info as InfoIcon
 } from 'lucide-react';
-import { BusinessListing, UserProfile } from '../types';
+import { BusinessListing, UserProfile, HistoryEntry } from '../types';
 import Logo from './Logo';
 
 const INITIAL_BUSINESSES: BusinessListing[] = [
@@ -45,27 +45,11 @@ const INITIAL_BUSINESSES: BusinessListing[] = [
     trustScore: 82,
     verifiedRevenue: true,
     auditPassed: false
-  },
-  {
-    id: '3',
-    name: 'Nexus Yield',
-    description: 'Automated stablecoin arbitrage vault. High architectural stability with audited settlement rails.',
-    askingPrice: '$420,000',
-    valuation: '$2.1M',
-    revenueARR: '$180,000',
-    multiple: '2.3x',
-    equityOffered: '100%',
-    category: 'DeFi',
-    ownerId: 'user3',
-    contactEmail: 'vault@nexus.base',
-    trustScore: 98,
-    verifiedRevenue: true,
-    auditPassed: true
   }
 ];
 
 interface BusinessHubProps {
-  currentUser: UserProfile;
+  currentUser: UserProfile & { history?: HistoryEntry[] };
   onViewDetails?: (business: BusinessListing, directToAcquire?: boolean) => void;
 }
 
@@ -73,12 +57,29 @@ const BusinessHub: React.FC<BusinessHubProps> = ({ currentUser, onViewDetails })
   const [search, setSearch] = useState('');
   const [isActionLoading, setIsActionLoading] = useState(false);
   
-  const [businesses] = useState<BusinessListing[]>(() => {
-    const saved = localStorage.getItem('venyro_marketplace_businesses');
-    return saved ? JSON.parse(saved) : INITIAL_BUSINESSES;
-  });
+  // Merge user history into the business dex
+  const allBusinesses = useMemo(() => {
+    const historyListings: BusinessListing[] = (currentUser.history || []).map(entry => ({
+      id: entry.id,
+      name: entry.inputs.productName,
+      description: entry.summary,
+      askingPrice: `$${(entry.projections[entry.projections.length-1].value * 3.5).toLocaleString()}`,
+      valuation: `$${(entry.projections[entry.projections.length-1].value * 12).toLocaleString()}`,
+      revenueARR: `$${entry.projections[entry.projections.length-1].value.toLocaleString()}`,
+      multiple: '3.5x',
+      equityOffered: '100%',
+      category: 'Synthesized',
+      ownerId: 'current',
+      contactEmail: currentUser.email,
+      trustScore: entry.viabilityScore,
+      verifiedRevenue: true,
+      auditPassed: true
+    }));
 
-  const filteredBusinesses = businesses.filter(b => 
+    return [...historyListings, ...INITIAL_BUSINESSES];
+  }, [currentUser.history, currentUser.email]);
+
+  const filteredBusinesses = allBusinesses.filter(b => 
     b.name.toLowerCase().includes(search.toLowerCase()) || 
     b.category.toLowerCase().includes(search.toLowerCase())
   );
