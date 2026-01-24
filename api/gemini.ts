@@ -5,6 +5,31 @@ export const config = {
   maxDuration: 60,
 };
 
+/**
+ * Helper to handle transient API errors with exponential backoff.
+ */
+async function withRetry(fn: () => Promise<any>, maxRetries = 3, initialDelay = 1000) {
+  let lastError;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+      const statusCode = error.status || (error as any).code;
+      const isRetryable = statusCode === 503 || statusCode === 429 || error.message?.toLowerCase().includes('overloaded');
+      
+      if (isRetryable && i < maxRetries - 1) {
+        const delay = initialDelay * Math.pow(2, i);
+        console.warn(`Gemini Engine overloaded. Retrying in ${delay}ms (Attempt ${i + 1}/${maxRetries})...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError;
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -32,7 +57,10 @@ export default async function handler(req: any, res: any) {
     }
   } catch (error: any) {
     console.error(`Gemini API Error [${action}]:`, error);
-    return res.status(500).json({ error: error.message || 'The Synthesis Engine encountered a technical error.' });
+    const message = error.message?.toLowerCase().includes('overloaded') 
+      ? 'The Strategic Engine is currently under high load. Please try again in a moment.' 
+      : (error.message || 'The Synthesis Engine encountered a technical error.');
+    return res.status(500).json({ error: message });
   }
 }
 
@@ -50,7 +78,7 @@ async function handleInferStrategy(ai: any, concept: string, res: any) {
     required: ["draft", "confidence", "assumptions", "nextAction"]
   };
 
-  const response = await ai.models.generateContent({
+  const response = await withRetry(() => ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
@@ -77,7 +105,7 @@ async function handleInferStrategy(ai: any, concept: string, res: any) {
         required: ["score", "suggestedName", "pillars"]
       }
     }
-  });
+  }));
 
   return res.status(200).json(JSON.parse(response.text.trim()));
 }
@@ -85,7 +113,7 @@ async function handleInferStrategy(ai: any, concept: string, res: any) {
 async function handleGenerateStrategy(ai: any, inputs: any, context: string | undefined, res: any) {
   let prompt = `Synthesize a full strategy for ${inputs.productName}. Concept: ${inputs.concept}. Previous context: ${context || 'N/A'}. Return structured JSON.`;
 
-  const response = await ai.models.generateContent({
+  const response = await withRetry(() => ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
@@ -110,7 +138,7 @@ async function handleGenerateStrategy(ai: any, inputs: any, context: string | un
         required: ["projections", "suggestedStreams", "checklist", "viabilityScore", "breakEvenMonth", "breakEvenDescription", "strategicPillars", "technologies", "riskMatrix", "roadmap", "summary", "kpis"]
       }
     }
-  });
+  }));
 
   return res.status(200).json(JSON.parse(response.text.trim()));
 }
@@ -118,7 +146,7 @@ async function handleGenerateStrategy(ai: any, inputs: any, context: string | un
 async function handleGenerateBlueprint(ai: any, inputs: any, context: string | undefined, res: any) {
   let prompt = `Create a Venture Blueprint for ${inputs.productName}. Context: ${inputs.concept}. Previous: ${context || 'None'}. Return JSON with title and sections[] (title, content).`;
 
-  const response = await ai.models.generateContent({
+  const response = await withRetry(() => ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
@@ -133,13 +161,13 @@ async function handleGenerateBlueprint(ai: any, inputs: any, context: string | u
         required: ["title", "sections"]
       }
     }
-  });
+  }));
 
   return res.status(200).json(JSON.parse(response.text.trim()));
 }
 
 async function handleRefineBlueprint(ai: any, blueprint: any, history: any[], res: any) {
-  const response = await ai.models.generateContent({
+  const response = await withRetry(() => ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: history,
     config: {
@@ -154,19 +182,19 @@ async function handleRefineBlueprint(ai: any, blueprint: any, history: any[], re
         required: ["title", "sections"]
       }
     }
-  });
+  }));
 
   return res.status(200).json(JSON.parse(response.text.trim()));
 }
 
 async function handleChatWithStrategy(ai: any, payload: any, history: any[], res: any) {
-  const response = await ai.models.generateContent({
+  const response = await withRetry(() => ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: history,
     config: {
       thinkingConfig: { thinkingBudget: 0 },
       systemInstruction: "Venyro Advisor: Professional, technical, concise. Use Markdown."
     }
-  });
+  }));
   return res.status(200).json({ text: response.text });
 }
