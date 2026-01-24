@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: LayoutGrid },
-    { id: 'wallet', label: 'Treasury', icon: Wallet },
+    { id: 'wallet', label: 'Wallet', icon: Wallet },
     { id: 'blueprint', label: 'Blueprints', icon: FileText },
     { id: 'revenue', label: 'Yield Engine', icon: Layers },
     { id: 'analytics', label: 'Audits', icon: BarChart3 },

@@ -141,12 +141,12 @@ const BusinessHub: React.FC<BusinessHubProps> = ({ currentUser, onViewDetails })
                       <Zap className="w-5 h-5 md:w-6 md:h-6 text-zinc-500 group-hover:text-primary transition-colors" />
                     </div>
                     <div className="flex flex-col items-end">
-                       <div className="flex items-center gap-1 px-2 py-0.5 bg-zinc-900/80 rounded-lg border border-white/5 text-primary mb-1">
-                          <Star className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
-                          <span className="text-[10px] font-bold">{b.trustScore}</span>
+                       <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-950 rounded-lg border border-white/10 text-primary mb-1 shadow-2xl">
+                          <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                          <span className="text-[12px] font-bold text-white leading-none">{b.trustScore}</span>
                        </div>
                        {b.verifiedRevenue && (
-                         <div className="flex items-center gap-1 text-[7px] md:text-[8px] font-bold text-emerald-400 uppercase tracking-widest">
+                         <div className="flex items-center gap-1 text-[7px] md:text-[8px] font-bold text-emerald-400 uppercase tracking-widest mt-1">
                            <ShieldCheck className="w-2.5 h-2.5" /> Verified
                          </div>
                        )}

@@ -474,8 +474,8 @@ const App: React.FC = () => {
             <div className="flex items-center gap-2 md:gap-4 overflow-hidden text-ellipsis whitespace-nowrap">
               <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setViewState('LANDING')}>
                 <span className="hidden xs:inline text-zinc-500 text-xs md:text-sm group-hover:text-primary transition-colors shrink-0">Venyro</span>
-                <span className="xs:hidden text-primary font-bold text-xs">Venyro Base L2</span>
-                <span className="hidden xs:inline text-primary font-bold text-xs md:text-sm shrink-0">Base L2</span>
+                <span className="xs:hidden text-primary font-bold text-xs">Venyro Base-L2</span>
+                <span className="hidden xs:inline text-primary font-bold text-xs md:text-sm shrink-0">Base-L2</span>
               </div>
               <span className="hidden xs:inline text-zinc-700 text-xs md:text-sm">/</span>
               <span className="text-primary text-xs md:text-sm font-medium truncate">
@@ -485,7 +485,7 @@ const App: React.FC = () => {
                  activeTab === 'revenue' ? 'Yield Engine' : 
                  activeTab === 'blueprint' ? 'Venture Blueprint' :
                  activeTab === 'profile' ? 'Settings' :
-                 activeTab === 'wallet' ? 'Treasury' :
+                 activeTab === 'wallet' ? 'Wallet' :
                  activeTab === 'dashboard' ? 'Overview' :
                  step === 'INITIAL' ? 'Inception' : 
                  step === 'MAP' ? 'Strategy Map' : 'Final Report'}

@@ -132,7 +132,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
           </div>
         </section>
 
-        {/* THE CORE OFFERS SECTION - UPDATED CARD DESIGN */}
+        {/* THE CORE OFFERS SECTION - REDESIGNED */}
         <section className="px-6 py-24 md:py-48 bg-zinc-950/40 border-y border-border/40 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-24 opacity-5 pointer-events-none">
              <Logo className="w-96 h-96" hideText />
@@ -247,41 +247,41 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
 
             <div className="lg:col-span-6 relative">
                <div className="absolute inset-0 bg-primary/5 rounded-[3rem] blur-2xl"></div>
-               <div className="relative p-8 md:p-12 rounded-[3rem] bg-zinc-950 border border-white/5 shadow-2xl space-y-12">
+               <div className="relative p-6 md:p-12 rounded-[3rem] bg-zinc-950 border border-white/5 shadow-2xl space-y-12">
                   <div className="space-y-6">
                     <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest text-center">Protocol vs Bureaucracy</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                       <div className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5 space-y-3">
-                          <p className="text-[8px] font-bold text-zinc-500 uppercase">Old Way</p>
-                          <div className="space-y-2">
-                             <div className="flex items-center justify-between text-[10px]">
-                                <span className="text-zinc-700 italic">Registration</span>
-                                <span className="text-red-900 font-bold">30 Days</span>
+                    <div className="grid grid-cols-1 xs:grid-cols-2 gap-4">
+                       <div className="p-5 md:p-6 rounded-2xl bg-zinc-900/50 border border-white/5 space-y-4">
+                          <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest border-b border-white/5 pb-2">Old Way</p>
+                          <div className="space-y-3">
+                             <div className="flex items-center justify-between text-[11px]">
+                                <span className="text-zinc-500">Registry</span>
+                                <span className="text-red-400 font-bold font-mono">30 Days</span>
                              </div>
-                             <div className="flex items-center justify-between text-[10px]">
-                                <span className="text-zinc-700 italic">Legal Fees</span>
-                                <span className="text-red-900 font-bold">$2,500+</span>
+                             <div className="flex items-center justify-between text-[11px]">
+                                <span className="text-zinc-500">Legal Fees</span>
+                                <span className="text-red-400 font-bold font-mono">$2,500+</span>
                              </div>
-                             <div className="flex items-center justify-between text-[10px]">
-                                <span className="text-zinc-700 italic">Payouts</span>
-                                <span className="text-red-900 font-bold">3-5 Days</span>
+                             <div className="flex items-center justify-between text-[11px]">
+                                <span className="text-zinc-500">Payouts</span>
+                                <span className="text-red-400 font-bold font-mono">3-5 Days</span>
                              </div>
                           </div>
                        </div>
-                       <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 space-y-3">
-                          <p className="text-[8px] font-bold text-emerald-400 uppercase">Venyro Way</p>
-                          <div className="space-y-2">
-                             <div className="flex items-center justify-between text-[10px]">
-                                <span className="text-emerald-900">Protocol</span>
-                                <span className="text-emerald-400 font-bold">2 Minutes</span>
+                       <div className="p-5 md:p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 space-y-4 shadow-[0_0_20px_rgba(16,185,129,0.05)]">
+                          <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest border-b border-emerald-500/20 pb-2">Venyro Way</p>
+                          <div className="space-y-3">
+                             <div className="flex items-center justify-between text-[11px]">
+                                <span className="text-emerald-900/80">Protocol</span>
+                                <span className="text-emerald-400 font-bold font-mono">2 Mins</span>
                              </div>
-                             <div className="flex items-center justify-between text-[10px]">
-                                <span className="text-emerald-900">Base Fees</span>
-                                <span className="text-emerald-400 font-bold">&lt; $0.50</span>
+                             <div className="flex items-center justify-between text-[11px]">
+                                <span className="text-emerald-900/80">Fees</span>
+                                <span className="text-emerald-400 font-bold font-mono">&lt; $0.50</span>
                              </div>
-                             <div className="flex items-center justify-between text-[10px]">
-                                <span className="text-emerald-900">Settlement</span>
-                                <span className="text-emerald-400 font-bold">Instant</span>
+                             <div className="flex items-center justify-between text-[11px]">
+                                <span className="text-emerald-900/80">Settle</span>
+                                <span className="text-emerald-400 font-bold font-mono">Instant</span>
                              </div>
                           </div>
                        </div>
@@ -291,7 +291,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
                   <div className="p-6 bg-zinc-900/30 rounded-2xl border border-white/5 flex items-center justify-between">
                      <div className="flex items-center gap-3">
                         <Activity className="w-5 h-5 text-zinc-500" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Total Protocol Efficiency Gain</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Protocol Efficiency Gain</span>
                      </div>
                      <span className="text-2xl font-bold text-primary">94.2%</span>
                   </div>

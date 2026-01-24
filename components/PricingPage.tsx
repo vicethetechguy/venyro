@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowLeft, Check, Sparkles, Zap, Shield, Crown } from 'lucide-react';
+import { ArrowLeft, Check, Sparkles, Zap, Shield, Crown, Terminal, ShieldCheck, Coins, FileText } from 'lucide-react';
 import Logo from './Logo';
 
 interface PricingPageProps {
@@ -11,16 +11,16 @@ interface PricingPageProps {
 const PricingPage: React.FC<PricingPageProps> = ({ onBack, onSelectPlan }) => {
   const plans = [
     {
-      name: "Starter",
+      name: "Free",
       icon: Zap,
       price: "0",
-      desc: "For solo founders testing new concepts.",
+      desc: "For solo founders testing new venture concepts.",
       features: [
-        "3 Strategies per month",
-        "Standard Gemini 3 Flash",
-        "Basic Revenue Charts",
-        "Community Support",
-        "Public Roadmaps"
+        "3 Strategy Syntheses / mo",
+        "Standard Yield Projections",
+        "Marketplace Explorer (View only)",
+        "Basic Technical Analytics",
+        "Community Support Access"
       ],
       cta: "Get Started Free",
       popular: false
@@ -29,14 +29,14 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onSelectPlan }) => {
       name: "Pro",
       icon: Sparkles,
       price: "49",
-      desc: "For serious builders and active ventures.",
+      desc: "For serious builders launching on Base L2.",
       features: [
-        "Unlimited Strategies",
-        "Gemini 3 Pro Intelligence",
-        "Executive Whitepaper Architect",
-        "Custom Branding Export",
-        "Priority Synthesis Engine",
-        "Conversational Follow-ups"
+        "Unlimited Strategy Syntheses",
+        "20-Section Executive Blueprints",
+        "Full On-chain Registry Access",
+        "Business Dex Staking & Bidding",
+        "Strategic Advisory (Chat Terminal)",
+        "Advanced Technical Audits"
       ],
       cta: "Architect the Future",
       popular: true
@@ -45,16 +45,16 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onSelectPlan }) => {
       name: "Enterprise",
       icon: Crown,
       price: "Custom",
-      desc: "For venture studios and labs.",
+      desc: "For venture studios and protocol labs.",
       features: [
-        "Multi-user Workspace",
-        "API Data Access",
-        "Custom Model Fine-tuning",
-        "Dedicated Venture Architect",
-        "SLA Guarantee",
-        "White-label Reports"
+        "Multi-wallet Workspace",
+        "Protocol API & Data Access",
+        "White-label Strategy Exports",
+        "Custom Governance Fine-tuning",
+        "Priority Protocol Handoff",
+        "Dedicated Support Node"
       ],
-      cta: "Contact Studio",
+      cta: "Contact Strategic Labs",
       popular: false
     }
   ];
@@ -79,8 +79,8 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onSelectPlan }) => {
       <div className="flex-1 overflow-y-auto relative z-10 scroll-smooth">
         <div className="max-w-7xl mx-auto px-6 pt-16 md:pt-24 pb-32">
           <header className="mb-16 md:mb-24 text-center space-y-4 md:space-y-6">
-            <h1 className="text-4xl md:text-6xl font-medium text-primary tracking-tight">Simple, Growth-First Pricing.</h1>
-            <p className="text-zinc-500 text-base md:text-xl font-light max-w-2xl mx-auto">Choose the tier that fits your synthesis requirements. No hidden fees, just pure strategic horsepower.</p>
+            <h1 className="text-4xl md:text-6xl font-medium text-primary tracking-tight">Venture Logic Pricing.</h1>
+            <p className="text-zinc-500 text-base md:text-xl font-light max-w-2xl mx-auto">Choose the tier that fits your synthesis requirements. No hidden fees, just pure strategic horsepower for your on-chain assets.</p>
           </header>
 
           <div className="flex md:grid md:grid-cols-3 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory gap-5 md:gap-8 mb-24 pb-8 md:pb-0 no-scrollbar">
@@ -95,7 +95,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onSelectPlan }) => {
               >
                 {plan.popular && (
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-background px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[8px] md:text-[10px] font-medium uppercase tracking-widest shadow-xl whitespace-nowrap">
-                     Most Popular Synthesis
+                     Most Popular Protocol
                   </div>
                 )}
                 
@@ -137,12 +137,29 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onSelectPlan }) => {
             <div className="md:hidden shrink-0 w-[7.5%]"></div>
           </div>
 
-          <section className="text-center space-y-6 md:space-y-8">
-             <div className="flex items-center justify-center gap-3 text-zinc-600">
-                <Shield className="w-4 h-4" />
-                <span className="text-[10px] md:text-xs uppercase font-medium tracking-widest">Enterprise-Grade Security Included</span>
+          <section className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 pt-12 border-t border-border/50">
+             <div className="space-y-4">
+                <h3 className="text-lg font-medium text-primary flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                  Secured Foundations
+                </h3>
+                <p className="text-sm text-zinc-500 font-light leading-relaxed">
+                  Every plan includes institutional-grade encryption and automated protocol audits. We ensure your strategic IP is never compromised while remaining verified on-chain.
+                </p>
              </div>
-             <p className="text-xs md:text-sm text-zinc-500 max-w-lg mx-auto leading-relaxed">Need a custom synthesis for a specific industry? <a href="#" className="text-primary font-medium hover:underline">Chat with our venture team</a>.</p>
+             <div className="space-y-4">
+                <h3 className="text-lg font-medium text-primary flex items-center gap-2">
+                  <Coins className="w-5 h-5 text-blue-500" />
+                  Yield Optimized
+                </h3>
+                <p className="text-sm text-zinc-500 font-light leading-relaxed">
+                  Upgrade to unlock full participation in the Business Dex. Stake on high-performing protocols and earn real yield settled instantly in USDC on Base.
+                </p>
+             </div>
+          </section>
+
+          <section className="text-center mt-24 space-y-6">
+             <p className="text-xs md:text-sm text-zinc-500 max-w-lg mx-auto leading-relaxed">Need a custom enterprise synthesis or specific protocol logic? <a href="#" className="text-primary font-medium hover:underline">Connect with our architects</a>.</p>
           </section>
         </div>
       </div>
