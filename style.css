@@ -71,34 +71,35 @@
     transform: translateX(-50%);
   }
 
-  /* Custom Prose Styling for Strategy Reports */
-  .prose-custom h1, .prose-custom h2, .prose-custom h3 { @apply text-primary font-semibold mt-6 mb-3 font-sans tracking-tight; }
-  .prose-custom h1 { @apply text-xl; }
-  .prose-custom h2 { @apply text-lg; }
-  .prose-custom h3 { @apply text-sm text-zinc-400 uppercase tracking-widest border-b border-border pb-2; }
+  /* Premium Whitepaper Prose Styling */
+  .prose-custom h1, .prose-custom h2, .prose-custom h3 { @apply text-primary font-bold mt-10 mb-6 font-sans tracking-tight; }
+  .prose-custom h1 { @apply text-2xl md:text-3xl border-b border-white/10 pb-4; }
+  .prose-custom h2 { @apply text-lg md:text-xl text-primary/90; }
+  .prose-custom h3 { @apply text-[11px] md:text-xs text-zinc-500 uppercase tracking-[0.2em] border-l-2 border-primary/20 pl-4 py-1; }
   
-  .prose-custom p { @apply mb-4 text-secondary leading-relaxed text-[15px] font-normal; }
-  .prose-custom ul, .prose-custom ol { @apply mb-5 pl-2; }
-  .prose-custom li { @apply relative pl-6 mb-2 text-zinc-200 text-sm leading-relaxed font-normal; }
-  .prose-custom ul li::before { content: '•'; @apply absolute left-1 text-zinc-600 font-bold; }
+  .prose-custom p { @apply mb-6 text-zinc-400 leading-relaxed text-sm md:text-base font-light tracking-wide; }
+  .prose-custom ul, .prose-custom ol { @apply mb-8 pl-1; }
+  .prose-custom li { @apply relative pl-8 mb-4 text-zinc-300 text-xs md:text-sm leading-relaxed font-normal; }
+  .prose-custom ul li::before { content: ''; @apply absolute left-1 top-2.5 w-1.5 h-1.5 rounded-full bg-primary/30; }
   .prose-custom ol { counter-reset: item; }
   .prose-custom ol li::before { 
     counter-increment: item; 
     content: counter(item) "."; 
-    @apply absolute left-0 text-zinc-500 font-mono text-xs font-medium top-0.5; 
+    @apply absolute left-0 text-zinc-600 font-mono text-[10px] font-black top-0.5; 
   }
   
-  .prose-custom strong { @apply text-white font-semibold; }
+  .prose-custom strong { @apply text-primary font-bold; }
   
-  .prose-custom table { @apply w-full border-collapse my-6 text-[13px] bg-black/20 rounded-xl overflow-hidden border border-border; }
-  .prose-custom th { @apply bg-surface text-primary text-left p-3 font-semibold border-b border-border; }
-  .prose-custom td { @apply p-3 border-b border-zinc-800/50 text-secondary font-normal; }
+  .prose-custom table { @apply w-full border-collapse my-10 text-[11px] md:text-xs bg-zinc-950 rounded-2xl overflow-hidden border border-white/5 shadow-2xl; }
+  .prose-custom th { @apply bg-zinc-900 text-zinc-400 text-left p-4 font-bold uppercase tracking-widest border-b border-white/5; }
+  .prose-custom td { @apply p-4 border-b border-white/[0.03] text-zinc-400 font-light; }
   .prose-custom tr:last-child td { border-bottom: none; }
+  .prose-custom tr:hover td { @apply bg-white/[0.02] text-primary transition-colors; }
   
-  .prose-custom code { @apply font-mono bg-border text-zinc-200 px-1.5 py-0.5 rounded text-[0.8em]; }
-  .prose-custom pre { @apply bg-background p-4 rounded-xl border border-border my-4 overflow-x-auto; }
-  .prose-custom pre code { @apply bg-transparent p-0 text-[0.85rem]; }
-  .prose-custom blockquote { @apply border-l-4 border-zinc-700 pl-5 italic text-zinc-500 my-6 font-light; }
+  .prose-custom code { @apply font-mono bg-zinc-900 text-zinc-300 px-2 py-0.5 rounded border border-white/5 text-[0.85em]; }
+  .prose-custom pre { @apply bg-zinc-950 p-6 rounded-2xl border border-white/5 my-8 overflow-x-auto shadow-inner; }
+  .prose-custom pre code { @apply bg-transparent p-0 text-[0.8rem] md:text-[0.9rem] leading-relaxed; }
+  .prose-custom blockquote { @apply border-l-4 border-primary/20 pl-6 italic text-zinc-500 my-10 font-light text-base md:text-lg bg-white/[0.01] py-4 rounded-r-xl; }
 }
 
 @media print {

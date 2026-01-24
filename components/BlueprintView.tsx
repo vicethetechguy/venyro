@@ -4,25 +4,23 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { 
   FileText, 
-  Download, 
   Printer, 
   Share2, 
-  Loader2, 
   ChevronRight,
   Sparkles,
-  BookOpen,
-  Send,
-  BrainCircuit,
   MessageCircle,
   CheckCircle2,
-  Copy,
   FileDown,
   X,
   Zap,
   Layers,
   FileSearch,
   Target,
-  Wand2
+  Wand2,
+  BrainCircuit,
+  ListOrdered,
+  BookOpen,
+  ArrowRight
 } from 'lucide-react';
 import { BlueprintResult } from '../types';
 import { GeminiService } from '../services/geminiService';
@@ -47,6 +45,7 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
   const [isRefining, setIsRefining] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [showShareToast, setShowShareToast] = useState(false);
+  const [activeSectionIdx, setActiveSectionIdx] = useState(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -54,17 +53,13 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isRefining]);
 
-  const handleScrollToSection = (e: React.MouseEvent, sectionId: string) => {
+  const handleScrollToSection = (e: React.MouseEvent, sectionId: string, idx: number) => {
     e.preventDefault();
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      window.history.replaceState(null, '', `#${sectionId}`);
+      setActiveSectionIdx(idx);
     }
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   const handleDownloadMarkdown = () => {
@@ -73,7 +68,7 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
     const filename = `${blueprint.title.replace(/\s+/g, '_')}_Whitepaper_${timestamp}.md`;
     
     let content = `# ${blueprint.title}\n\n`;
-    content += `*Expert Whitepaper Synthesis by Venyro Labs*\n\n---\n\n`;
+    content += `*Expert Whitepaper Synthesis by Venyro Strategic Labs*\n\n---\n\n`;
     
     blueprint.sections.forEach((section, idx) => {
       content += `## ${idx + 1}. ${section.title}\n\n${section.content}\n\n`;
@@ -88,17 +83,6 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  };
-
-  const handleShare = async () => {
-    const shareText = `Venyro Executive Whitepaper: ${blueprint?.title || 'Synthesis'}\nAccess institutional architecture at ${window.location.href}`;
-    try {
-      await navigator.clipboard.writeText(shareText);
-      setShowShareToast(true);
-      setTimeout(() => setShowShareToast(false), 3000);
-    } catch (err) {
-      console.error('Failed to copy share link', err);
-    }
   };
 
   const handleSendMessage = async (instruction: string) => {
@@ -120,43 +104,29 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
       
       setMessages(prev => [...prev, { 
         role: 'model', 
-        text: `### Whitepaper Refinement Protocol Complete\n\nI have restructured the whitepaper for **${blueprint.title}** per your instructions. The technical depth and paragraph structure have been optimized for investor-ready clarity.` 
+        text: `### Protocol Refinement Complete\n\nI have restructured the document for **${blueprint.title}**. Technical clarity and paragraph depth have been enhanced for institutional standards.` 
       }]);
     } catch (error: any) {
       console.error("Refinement error:", error);
       setMessages(prev => [...prev, { 
         role: 'model', 
-        text: `### Document Protocol Error\n\n${error.message || "I encountered an error while updating the whitepaper draft."}` 
+        text: `### System Error\n\n${error.message || "Failed to update protocol document."}` 
       }]);
     } finally {
       setIsRefining(false);
     }
   };
 
-  const quickCommands = [
-    { label: 'Deep Synthesis', cmd: 'Provide more technical detail and expand paragraphs', icon: Layers },
-    { label: 'Summarize', cmd: 'Summarize the executive sections for brevity', icon: FileSearch },
-    { label: 'Investor Tone', cmd: 'Make the tone more persuasive and suitable for VCs', icon: Target },
-    { label: 'Clarify', cmd: 'Simplify complex technical jargon while maintaining depth', icon: Wand2 },
-  ];
-
-  const architectSuggestions = [
-    "Add more bullet points to technical sections",
-    "Elaborate on the monetization paragraphs",
-    "Include placeholder markers for financial charts",
-    "Add a detailed competitive landscape table",
-    "Refine the legal considerations section"
-  ];
-
   if (loading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center min-h-[500px] p-8">
-        <div className="relative mb-8">
-          <Logo isGenerating={true} className="h-20 w-20" hideText />
+      <div className="flex-1 flex flex-col items-center justify-center min-h-[500px] p-8 text-center">
+        <div className="relative mb-10">
+          <div className="absolute inset-0 bg-primary/20 blur-3xl animate-pulse rounded-full"></div>
+          <Logo isGenerating={true} className="h-24 w-24 relative z-10" hideText />
         </div>
-        <h2 className="text-2xl font-semibold text-primary mb-3">Synthesizing Executive Whitepaper</h2>
-        <p className="text-sm text-zinc-500 max-w-sm text-center leading-relaxed">
-          The Expert Architect is drafting a 20-section comprehensive document. Structuring tokenomics, validating revenue streams, and ensuring institutional compliance...
+        <h2 className="text-3xl font-bold text-primary mb-4 tracking-tight">Synthesizing 20-Section Asset</h2>
+        <p className="text-sm text-zinc-500 max-w-sm leading-relaxed font-light">
+          Constructing tokenomics, legal frameworks, and technical architecture. This high-fidelity document is being drafted for institutional handoff...
         </p>
       </div>
     );
@@ -164,236 +134,222 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
 
   if (!blueprint) {
     return (
-      <div className="max-w-4xl mx-auto p-12 text-center animate-in fade-in slide-in-from-bottom-4 py-20">
-        <div className="w-24 h-24 bg-surface/50 border border-border rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+      <div className="max-w-4xl mx-auto p-6 md:p-12 text-center animate-in fade-in slide-in-from-bottom-4 py-16 md:py-24">
+        <div className="w-20 h-20 md:w-24 md:h-24 bg-surface/50 border border-border rounded-[2rem] flex items-center justify-center mx-auto mb-10 shadow-2xl">
           <FileText className="w-10 h-10 text-zinc-500" />
         </div>
-        <h1 className="text-4xl lg:text-5xl font-semibold text-primary mb-6 tracking-tight">Venture Whitepaper Engine</h1>
-        <p className="text-zinc-500 text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-          Generate professional, investor-ready whitepapers with 20 distinct sections, technical architecture, and detailed financial models. Designed for clarity, credibility, and impact.
+        <h1 className="text-3xl md:text-5xl font-bold text-primary mb-6 tracking-tighter">Venture Blueprint Engine</h1>
+        <p className="text-zinc-500 text-sm md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-light">
+          Generate professional 20-section whitepapers covering everything from technical architecture to market moats. Designed for global settlement standards.
         </p>
         
         {!conceptProvided && (
-          <div className="bg-red-500/5 border border-red-500/20 p-5 rounded-2xl text-red-400 text-sm mb-12 max-w-md mx-auto flex items-center gap-3">
-            <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
-            Establish your vision in the "New Strategy" terminal to unlock the architect engine.
+          <div className="bg-red-500/5 border border-red-500/20 p-4 rounded-xl text-red-400 text-xs mb-10 max-w-md mx-auto flex items-center gap-3">
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></div>
+            Return to Synthesis Terminal to establish your vision first.
           </div>
         )}
 
         <button 
           disabled={!conceptProvided}
           onClick={onGenerate}
-          className="bg-primary text-background px-10 py-4 rounded-[1.5rem] font-bold text-sm hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-4 mx-auto shadow-2xl shadow-white/5 active:scale-95 transform"
+          className="w-full sm:w-auto bg-primary text-background px-10 py-5 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-all disabled:opacity-50 flex items-center justify-center gap-4 mx-auto shadow-2xl active:scale-95 transform"
         >
           <Sparkles className="w-5 h-5" />
-          Draft Full Whitepaper
+          Draft 20-Section Protocol
         </button>
       </div>
     );
   }
 
   return (
-    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto scroll-smooth animate-in fade-in duration-500">
-      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-2xl border-b border-border/50 px-8 py-6 print:hidden">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div ref={scrollContainerRef} className="flex-1 flex flex-col h-full bg-background overflow-hidden animate-in fade-in duration-500">
+      {/* Premium Header */}
+      <header className="shrink-0 bg-background/80 backdrop-blur-2xl border-b border-border/50 px-4 md:px-8 py-5 md:py-8 z-40 print:hidden">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-6">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Institutional Grade Asset</span>
+            <div className="flex items-center gap-2 mb-1.5 md:mb-2">
+               <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+               <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">Institutional Blueprint v4.2</span>
             </div>
-            <h1 className="text-2xl font-bold text-primary truncate max-w-xl">{blueprint.title}</h1>
+            <h1 className="text-lg md:text-3xl font-bold text-primary truncate tracking-tight">{blueprint.title}</h1>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 md:gap-3 shrink-0">
             <button 
               onClick={handleDownloadMarkdown}
-              title="Download Markdown"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface border border-border text-zinc-400 hover:text-primary text-xs font-medium transition-all"
+              className="p-2 md:px-4 md:py-2 rounded-xl bg-surface border border-border text-zinc-400 hover:text-primary text-[10px] font-bold transition-all"
+              title="Download MD"
             >
-              <FileDown className="w-3.5 h-3.5" /> MD
+              <FileDown className="w-4 h-4 md:mr-2 md:inline" /> <span className="hidden md:inline">MD</span>
             </button>
             <button 
-              onClick={handlePrint}
-              title="Print to PDF"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface border border-border text-zinc-400 hover:text-primary text-xs font-medium transition-all"
+              onClick={handleSendMessage}
+              className="hidden sm:flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-background font-bold text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-xl active:scale-95"
             >
-              <Printer className="w-3.5 h-3.5" /> PDF
+              <Share2 className="w-3.5 h-3.5" /> Share
             </button>
-            <div className="relative">
-              <button 
-                onClick={handleShare}
-                className="flex items-center gap-2 px-6 py-2 rounded-xl bg-primary text-background font-bold text-xs hover:bg-white transition-all shadow-lg shadow-white/5 active:scale-95"
-              >
-                <Share2 className="w-3.5 h-3.5" /> Share
-              </button>
-              {showShareToast && (
-                <div className="absolute top-full mt-3 right-0 bg-emerald-500 text-white text-[10px] py-2 px-4 rounded-lg font-bold uppercase tracking-widest flex items-center gap-2 shadow-2xl animate-in zoom-in duration-200">
-                  <CheckCircle2 className="w-3 h-3" /> Link Copied
-                </div>
-              )}
-            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-6xl mx-auto px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-          <div className="lg:col-span-3 print:hidden">
-            <div className="sticky top-32 space-y-6">
-              <div className="px-4 py-2 rounded-xl bg-zinc-900/50 border border-border">
-                <h3 className="text-[10px] uppercase font-bold text-zinc-500 tracking-[0.2em] mb-4 mt-2">Executive Sections</h3>
-                <nav className="space-y-1 pb-2">
-                  {blueprint.sections.map((section, idx) => (
-                    <a 
-                      key={idx} 
-                      href={`#section-${idx}`}
-                      onClick={(e) => handleScrollToSection(e, `section-${idx}`)}
-                      className="group flex items-center justify-between p-2.5 rounded-lg hover:bg-surface/50 text-zinc-500 hover:text-primary transition-all border border-transparent hover:border-border"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-[10px] font-mono text-zinc-700">{idx + 1 < 10 ? `0${idx + 1}` : idx + 1}</span>
-                        <span className="text-xs font-medium truncate">{section.title}</span>
-                      </div>
-                      <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </a>
-                  ))}
-                </nav>
-              </div>
-              <div className="p-6 rounded-3xl bg-surface/20 border border-border/50 text-center">
-                 <p className="text-[10px] text-zinc-600 leading-relaxed font-medium">Draft follows VC-compliance standards. Ready for export to institutional formats.</p>
-              </div>
-            </div>
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Nav: Mobile Hidden by default, sticky on desktop */}
+        <aside className="hidden lg:flex w-80 border-r border-border/50 flex-col bg-background/50 shrink-0">
+          <div className="p-6 border-b border-border/50">
+             <div className="flex items-center justify-between mb-4">
+               <h3 className="text-[10px] uppercase font-bold text-zinc-500 tracking-[0.2em]">Sections Progress</h3>
+               <span className="text-[10px] font-mono text-zinc-600">{activeSectionIdx + 1}/20</span>
+             </div>
+             <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary transition-all duration-500" 
+                  style={{ width: `${((activeSectionIdx + 1) / 20) * 100}%` }}
+                ></div>
+             </div>
           </div>
-
-          <div className="lg:col-span-9 space-y-24 pb-40 print:col-span-12">
+          <nav className="flex-1 overflow-y-auto p-4 space-y-1 no-scrollbar">
             {blueprint.sections.map((section, idx) => (
-              <section key={idx} id={`section-${idx}`} className="scroll-mt-36 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700" style={{ animationDelay: `${idx * 100}ms` }}>
-                <div className="flex items-center gap-6">
-                  <div className="text-4xl font-light text-zinc-800 font-mono">{idx + 1 < 10 ? `0${idx + 1}` : idx + 1}</div>
-                  <h2 className="text-2xl font-semibold text-primary tracking-tight">{section.title}</h2>
-                  <div className="flex-1 h-px bg-zinc-900 print:hidden"></div>
+              <a 
+                key={idx} 
+                href={`#section-${idx}`}
+                onClick={(e) => handleScrollToSection(e, `section-${idx}`, idx)}
+                className={`group flex items-center justify-between p-3 rounded-xl transition-all border ${
+                  activeSectionIdx === idx 
+                  ? 'bg-primary text-background border-primary shadow-lg translate-x-1' 
+                  : 'text-zinc-500 hover:bg-surface border-transparent hover:border-border'
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className={`text-[9px] font-mono font-bold ${activeSectionIdx === idx ? 'text-background/60' : 'text-zinc-700'}`}>
+                    {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
+                  </span>
+                  <span className="text-xs font-bold truncate tracking-tight">{section.title}</span>
                 </div>
-                <div className="prose-custom max-w-none">
+                {activeSectionIdx === idx && <ArrowRight className="w-3.5 h-3.5" />}
+              </a>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Center: Scrollable Prose */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-12 lg:p-20 scroll-smooth relative no-scrollbar">
+          <div className="max-w-3xl mx-auto space-y-24 md:space-y-32 pb-40">
+            {/* Mobile Section Scroller (Quick access) */}
+            <div className="lg:hidden flex items-center gap-3 overflow-x-auto no-scrollbar pb-8 -mx-4 px-4 sticky top-0 bg-background/90 backdrop-blur-md z-30 mb-8 border-b border-white/5">
+               {blueprint.sections.map((_, i) => (
+                 <button 
+                  key={i} 
+                  onClick={(e) => handleScrollToSection(e as any, `section-${i}`, i)}
+                  className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-mono font-bold transition-all border ${activeSectionIdx === i ? 'bg-primary text-background border-primary' : 'bg-zinc-900 text-zinc-600 border-white/5'}`}
+                 >
+                   {i + 1}
+                 </button>
+               ))}
+            </div>
+
+            {blueprint.sections.map((section, idx) => (
+              <section 
+                key={idx} 
+                id={`section-${idx}`} 
+                className="scroll-mt-36 group animate-in fade-in slide-in-from-bottom-4 duration-1000"
+                style={{ animationDelay: `${idx * 150}ms` }}
+              >
+                <div className="flex items-end gap-4 mb-8 md:mb-12">
+                   <div className="text-4xl md:text-7xl font-black text-zinc-900/40 font-mono tracking-tighter leading-none group-hover:text-primary/20 transition-colors">
+                     {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
+                   </div>
+                   <div className="flex-1 pb-1 md:pb-3">
+                      <h2 className="text-xl md:text-4xl font-bold text-primary tracking-tight leading-none mb-4">{section.title}</h2>
+                      <div className="h-px w-full bg-gradient-to-r from-zinc-800 to-transparent"></div>
+                   </div>
+                </div>
+                
+                <div className="prose-custom max-w-none px-1">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{section.content}</ReactMarkdown>
                 </div>
+
+                {idx === blueprint.sections.length - 1 && (
+                  <div className="mt-24 p-8 rounded-[2.5rem] bg-emerald-500/5 border border-emerald-500/20 text-center space-y-4">
+                     <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
+                     <h4 className="text-lg font-bold text-primary">Protocol Synthesis Complete</h4>
+                     <p className="text-xs text-zinc-500 font-light max-w-xs mx-auto">This asset is verified and ready for on-chain registry or executive handoff.</p>
+                  </div>
+                )}
               </section>
             ))}
-            
-            <div className="pt-12 border-t border-zinc-900 flex items-center justify-between print:hidden">
-               <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-900"></div>
-                  <p className="text-[10px] text-zinc-600 font-mono tracking-widest uppercase">Protocol End</p>
-               </div>
-               <button onClick={() => scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })} className="text-[10px] font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-widest">
-                  Back to Top
-               </button>
-            </div>
 
-            <div className="mt-32 space-y-8 animate-in slide-up duration-1000 print:hidden">
+            {/* Refinement Interface */}
+            <div className="mt-20 pt-20 border-t border-white/5 space-y-10 print:hidden">
                <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 rounded-[1.2rem] bg-zinc-900 border border-border flex items-center justify-center shadow-xl">
+                 <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center shadow-2xl">
                    <BrainCircuit className="w-6 h-6 text-primary" />
                  </div>
                  <div>
-                   <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Whitepaper Refinement Terminal</h3>
-                   <p className="text-[10px] text-zinc-500 font-medium">Collaborate with the analyst to polish specific document sections.</p>
+                   <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Document Refinement</h3>
+                   <p className="text-[10px] text-zinc-500 font-medium">Instruct the analyst to polish specific protocol clauses.</p>
                  </div>
                </div>
 
-               <div className="rounded-[2.5rem] bg-zinc-950/40 border border-border/80 backdrop-blur-xl overflow-hidden shadow-2xl flex flex-col min-h-[400px]">
-                  <div className="flex-1 overflow-y-auto p-8 space-y-8 max-h-[500px] scrollbar-hide">
+               <div className="rounded-[2.5rem] bg-zinc-950 border border-white/10 overflow-hidden shadow-2xl flex flex-col min-h-[400px]">
+                  <div className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[500px] scrollbar-hide">
                     {messages.length === 0 && (
-                      <div className="h-full flex flex-col items-center justify-center text-center opacity-40 py-20 space-y-6">
-                        <MessageCircle className="w-12 h-12 text-zinc-600" />
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium text-zinc-400">Refinement Active</p>
-                          <p className="text-[11px] text-zinc-600 max-w-[280px] mx-auto leading-relaxed">Try: "Detail the token mechanics with paragraphs on utility" or "Expand the roadmap section with more bullets."</p>
-                        </div>
+                      <div className="h-full flex flex-col items-center justify-center text-center opacity-40 py-16 space-y-4">
+                        <MessageCircle className="w-12 h-12 text-zinc-700" />
+                        <p className="text-xs font-medium text-zinc-500">Refinement Terminal Active</p>
                       </div>
                     )}
                     {messages.map((msg, idx) => (
-                      <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2`}>
-                        <div className={`max-w-[85%] rounded-[1.8rem] px-6 py-4 shadow-xl ${
+                      <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in`}>
+                        <div className={`max-w-[90%] rounded-2xl px-5 py-3 shadow-xl text-xs leading-relaxed ${
                           msg.role === 'user' 
-                            ? 'bg-primary text-background font-bold text-xs' 
-                            : 'bg-surface/60 border border-border text-zinc-300 text-sm'
+                            ? 'bg-primary text-background font-bold' 
+                            : 'bg-zinc-900 border border-white/5 text-zinc-300'
                         }`}>
-                          {msg.role === 'user' ? (
-                            msg.text
-                          ) : (
-                            <div className="prose-custom prose-sm max-w-none">
-                              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
-                            </div>
-                          )}
+                          {msg.role === 'user' ? msg.text : <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>}
                         </div>
                       </div>
                     ))}
                     {isRefining && (
                       <div className="flex justify-start animate-in fade-in">
-                        <div className="bg-surface/40 border border-border rounded-full px-6 py-3 flex items-center gap-4">
-                          <Logo isGenerating={true} className="h-4 w-4" hideText />
-                          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest italic">Analyzing and restructuring paragraphs...</span>
+                        <div className="bg-surface border border-border rounded-full px-5 py-2.5 flex items-center gap-3">
+                          <Logo isGenerating={true} className="h-3 w-3" hideText />
+                          <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest italic">Drafting Clause...</span>
                         </div>
                       </div>
                     )}
                     <div ref={chatEndRef} />
                   </div>
 
-                  <div className="px-6 py-3 border-t border-white/5 bg-zinc-900/50 flex items-center gap-4 overflow-x-auto no-scrollbar">
-                     <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest whitespace-nowrap">Analyst Controls:</span>
-                     {quickCommands.map((item) => (
-                       <button
-                         key={item.label}
-                         onClick={() => handleSendMessage(item.cmd)}
-                         disabled={isRefining}
-                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-zinc-950 text-zinc-500 hover:text-primary hover:border-zinc-500 transition-all active:scale-95 group shrink-0"
-                       >
-                         <item.icon className="w-3 h-3 group-hover:scale-110 transition-transform" />
-                         <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
-                       </button>
-                     ))}
-                  </div>
-
-                  <div className="p-6 bg-black/40 border-t border-border/50 space-y-4">
-                    <div className="flex flex-wrap gap-2">
-                       {architectSuggestions.map((suggestion) => (
-                         <button
-                           key={suggestion}
-                           onClick={() => handleSendMessage(suggestion)}
-                           disabled={isRefining}
-                           className="px-3 py-1.5 rounded-lg bg-zinc-900 border border-border text-[10px] font-medium text-zinc-500 hover:text-primary hover:border-zinc-500 transition-all active:scale-95"
-                         >
-                           + {suggestion}
-                         </button>
-                       ))}
-                    </div>
-                    <form 
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        handleSendMessage(chatInput);
-                      }} 
-                      className="flex items-center gap-4"
+                  <form 
+                    onSubmit={(e) => { e.preventDefault(); handleSendMessage(chatInput); }} 
+                    className="p-4 bg-zinc-900/50 border-t border-white/5 flex items-center gap-3"
+                  >
+                    <input 
+                      type="text" 
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      placeholder="e.g. Expand on token utility..." 
+                      className="flex-1 bg-transparent border-none outline-none text-xs text-zinc-300 placeholder:text-zinc-700 py-2"
+                    />
+                    <button 
+                      type="submit"
+                      disabled={!chatInput.trim() || isRefining}
+                      className="w-10 h-10 rounded-xl bg-primary text-background flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
                     >
-                      <input 
-                        type="text" 
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        placeholder="Instruct the whitepaper analyst..." 
-                        className="flex-1 bg-transparent border-none outline-none text-sm text-zinc-300 placeholder:text-zinc-700 py-3 px-2"
-                      />
-                      <button 
-                        type="submit"
-                        disabled={!chatInput.trim() || isRefining}
-                        className="w-12 h-12 rounded-2xl bg-primary text-background flex items-center justify-center hover:scale-110 active:scale-90 transition-all disabled:opacity-30 disabled:grayscale shadow-xl"
-                      >
-                         <Logo isGenerating={isRefining} className="h-5 w-5" hideText />
-                      </button>
-                    </form>
-                  </div>
+                       <Logo isGenerating={isRefining} className="h-4 w-4" hideText />
+                    </button>
+                  </form>
                </div>
             </div>
           </div>
-        </div>
+        </main>
       </div>
+
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 };
