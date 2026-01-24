@@ -508,7 +508,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto relative z-10 p-4 md:p-8 lg:p-12 print:p-0">
+        <div className={`flex-1 overflow-y-auto relative z-10 print:p-0 ${activeTab === 'registration' ? 'p-0' : 'p-4 md:p-8 lg:p-12'}`}>
           {error && (
             <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-900/10 border border-red-900/20 rounded-2xl text-red-400 text-xs flex items-start gap-3 animate-in slide-in-from-top-2 print:hidden overflow-hidden shadow-2xl backdrop-blur-xl">
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
@@ -668,6 +668,7 @@ const App: React.FC = () => {
             <RegistrationView 
               onHandoff={handleRegistrationHandoff} 
               onLaunchStorefront={handleLaunchStorefront}
+              onExit={() => setActiveTab('dashboard')}
             />
           )}
 
