@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   ArrowLeft, 
@@ -90,33 +89,38 @@ const AuthView: React.FC<AuthViewProps> = ({ onBack, onSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative">
-      {/* Background decoration */}
-      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-white/5 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-zinc-900/50 rounded-full blur-[80px] pointer-events-none"></div>
+    <div className="min-h-screen bg-background flex flex-col items-center py-12 px-6 relative overflow-x-hidden">
+      {/* Background decoration - strictly contained */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute top-1/4 left-1/4 w-[min(400px,80vw)] h-[min(400px,80vw)] bg-white/5 rounded-full blur-[100px]"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-[min(300px,70vw)] h-[min(300px,70vw)] bg-zinc-900/50 rounded-full blur-[80px]"></div>
+      </div>
 
-      <button 
-        onClick={onBack}
-        className="absolute top-10 left-10 flex items-center gap-2 text-zinc-500 hover:text-primary transition-colors text-xs font-medium uppercase tracking-widest"
-      >
-        <ArrowLeft className="w-4 h-4" /> Back Home
-      </button>
+      <div className="w-full max-w-md flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {/* Navigation - Top */}
+        <button 
+          onClick={onBack}
+          className="flex items-center gap-2 text-zinc-500 hover:text-primary transition-colors text-[10px] font-bold uppercase tracking-widest mb-10"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" /> Back Home
+        </button>
 
-      <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {/* Brand - Below Navigation */}
         <div className="flex justify-center mb-10">
-          <Logo className="h-10" />
+          <Logo className="h-9 md:h-10" />
         </div>
 
-        <div className="bg-surface/30 border border-border p-8 rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-6 opacity-10">
-            <Sparkles className="w-12 h-12 text-white" />
+        {/* Auth Card */}
+        <div className="w-full bg-surface/30 border border-border p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] backdrop-blur-xl shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
+            <Sparkles className="w-10 h-10 md:w-12 md:h-12 text-white" />
           </div>
 
-          <div className="relative z-10 mb-8">
-            <h2 className="text-2xl font-medium text-primary mb-2">
+          <div className="relative z-10 mb-8 text-center sm:text-left">
+            <h2 className="text-xl md:text-2xl font-medium text-primary mb-2">
               {mode === 'SIGN_IN' ? 'Welcome Back' : 'Create Architect Account'}
             </h2>
-            <p className="text-sm text-zinc-500">
+            <p className="text-xs md:text-sm text-zinc-500">
               {mode === 'SIGN_IN' 
                 ? 'Resume your venture synthesis journey.' 
                 : 'Join the next generation of strategic founders.'}
@@ -130,10 +134,10 @@ const AuthView: React.FC<AuthViewProps> = ({ onBack, onSuccess }) => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
             {mode === 'SIGN_UP' && (
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase font-medium tracking-widest text-zinc-500 ml-1">Full Name</label>
+              <div className="space-y-1.5 md:space-y-2">
+                <label className="text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-zinc-500 ml-1">Full Name</label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                   <input 
@@ -148,8 +152,8 @@ const AuthView: React.FC<AuthViewProps> = ({ onBack, onSuccess }) => {
               </div>
             )}
 
-            <div className="space-y-2">
-              <label className="text-[10px] uppercase font-medium tracking-widest text-zinc-500 ml-1">Email Address</label>
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-zinc-500 ml-1">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                 <input 
@@ -163,10 +167,10 @@ const AuthView: React.FC<AuthViewProps> = ({ onBack, onSuccess }) => {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5 md:space-y-2">
               <div className="flex items-center justify-between ml-1">
-                <label className="text-[10px] uppercase font-medium tracking-widest text-zinc-500">Password</label>
-                {mode === 'SIGN_IN' && <button type="button" className="text-[10px] text-zinc-600 hover:text-zinc-400">Forgot?</button>}
+                <label className="text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-zinc-500">Password</label>
+                {mode === 'SIGN_IN' && <button type="button" className="text-[9px] font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-400">Forgot?</button>}
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
@@ -191,17 +195,17 @@ const AuthView: React.FC<AuthViewProps> = ({ onBack, onSuccess }) => {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-background py-3.5 rounded-xl font-medium text-sm hover:bg-white transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-2 active:scale-95 transform mt-8"
+              className="w-full bg-primary text-background py-3.5 md:py-4 rounded-xl md:rounded-2xl font-bold text-xs md:text-sm uppercase tracking-widest hover:bg-white transition-all shadow-xl active:scale-95 transform mt-6 md:mt-8 flex items-center justify-center gap-3"
             >
-              {loading ? <Logo isGenerating={true} className="h-4 w-4" hideText /> : mode === 'SIGN_IN' ? 'Enter Workspace' : 'Create Account'}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === 'SIGN_IN' ? 'Enter Workspace' : 'Create Account'}
               {!loading && <ChevronRight className="w-4 h-4" />}
             </button>
           </form>
 
-          <div className="mt-10 pt-6 border-t border-border/50 text-center">
+          <div className="mt-8 md:mt-10 pt-6 border-t border-border/50 text-center">
             <button 
               onClick={handleToggleMode}
-              className="text-xs text-zinc-500 hover:text-primary transition-colors"
+              className="text-xs text-zinc-500 hover:text-primary transition-colors font-medium"
             >
               {mode === 'SIGN_IN' 
                 ? "Don't have an account? Sign Up" 
@@ -210,7 +214,7 @@ const AuthView: React.FC<AuthViewProps> = ({ onBack, onSuccess }) => {
           </div>
         </div>
 
-        <p className="mt-8 text-center text-[10px] text-zinc-700 uppercase tracking-widest font-medium">
+        <p className="mt-8 text-center text-[10px] text-zinc-700 uppercase tracking-[0.2em] font-bold px-4 leading-relaxed">
           By continuing, you agree to our strategic framework and data policies.
         </p>
       </div>
