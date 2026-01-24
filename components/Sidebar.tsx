@@ -14,7 +14,9 @@ import {
   ShieldCheck,
   Wallet,
   Briefcase,
-  Coins
+  Coins,
+  TrendingUp,
+  User
 } from 'lucide-react';
 import Logo from './Logo';
 import { UserProfile, HistoryEntry } from '../types';
@@ -49,6 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: 'wallet', label: 'Wallet', icon: Wallet },
     { id: 'blueprint', label: 'Blueprints', icon: FileText },
     { id: 'revenue', label: 'Yield Engine', icon: Layers },
+    { id: 'revenue_streams', label: 'Revenue Streams', icon: TrendingUp },
     { id: 'analytics', label: 'Audits', icon: BarChart3 },
   ];
 
@@ -199,7 +202,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               {profile.avatarUrl ? (
                 <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                profile.walletAddress ? <Wallet className="w-3.5 h-3.5 text-primary" /> : profile.avatarInitials
+                <User className="w-3.5 h-3.5 text-primary" />
               )}
             </div>
             <div className="flex-1 text-left overflow-hidden">

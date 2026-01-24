@@ -39,6 +39,7 @@ import StrategyMap from './components/StrategyMap';
 import BusinessHub from './components/BusinessHub';
 import AnalyticsView from './components/AnalyticsView';
 import RevenueStreamsView from './components/RevenueStreamsView';
+import VentureRevenueView from './components/VentureRevenueView';
 import RegistrationView from './components/RegistrationView';
 import BusinessAcquisitionPage from './components/BusinessOnePage';
 import DashboardView from './components/DashboardView';
@@ -483,6 +484,7 @@ const App: React.FC = () => {
                  activeTab === 'business_hub' ? 'Business Dex' : 
                  activeTab === 'analytics' ? 'Technical Analytics' : 
                  activeTab === 'revenue' ? 'Yield Engine' : 
+                 activeTab === 'revenue_streams' ? 'Revenue Streams' : 
                  activeTab === 'blueprint' ? 'Venture Blueprint' :
                  activeTab === 'profile' ? 'Settings' :
                  activeTab === 'wallet' ? 'Wallet' :
@@ -700,6 +702,10 @@ const App: React.FC = () => {
 
           {activeTab === 'revenue' && (
             <RevenueStreamsView result={result} loading={loading} />
+          )}
+
+          {activeTab === 'revenue_streams' && (
+            <VentureRevenueView result={result} loading={loading} />
           )}
           
           {activeTab === 'business_hub' && (
