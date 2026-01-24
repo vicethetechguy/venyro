@@ -149,31 +149,39 @@ async function handleGenerateBlueprint(ai: any, inputs: any, context: string | u
   CORE CONCEPT: ${inputs.concept}
   STRATEGIC CONTEXT: ${context || 'Analyze from scratch based on name and concept.'}
   
-  The whitepaper must be fully structured with these sections:
-  1. Executive Summary
-  2. Problem Statement
-  3. Solution Overview
-  4. Platform/Business Architecture
-  5. Product/Token Mechanics (tailor to project type)
-  6. Validation or Traction Mechanism
-  7. Investment/Monetization Model
-  8. Tokenomics (if applicable, otherwise Revenue Strategy)
-  9. Governance (if applicable, otherwise Operational Structure)
-  10. Roadmap (Short, Mid, Long term)
-  11. Security & Compliance
-  12. Market Analysis (Total Addressable Market, Competitors)
-  13. Community & Incentives
-  14. Legal Considerations
-  15. Technical Implementation (Stack, Data Flow)
-  16. Case Studies / Hypotheticals
-  17. Revenue Model Detail
-  18. Team & Advisors (suggested roles)
-  19. Risk & Challenges
-  20. Appendices & Glossary
+  TASK:
+  Generate a comprehensive whitepaper tailored to the project type (Web3, SaaS, Hardware, etc.). The document should be institutional-grade, persuasive, and technically deep.
+  
+  FORMATTING RULES:
+  1. Use Markdown for sections.
+  2. Each section MUST be detailed and written in clear, structured paragraphs (no large blocks).
+  3. Use bullet points for lists of features, metrics, or technical steps.
+  4. Include markers like [Insert Diagram: Technical Flow] or [Insert Chart: Token Distribution] where relevant.
+  5. The tone must be professional, authoritative, and suitable for venture capital review.
 
-  Tone: Professional, persuasive, technical, and data-driven.
-  Placeholders: Include markers like [Insert Diagram: Technical Flow] where appropriate.
-  If inputs are insufficient, infer a logical high-fidelity strategy based on industry best practices for a venture of this type.
+  REQUIRED STRUCTURE (20 SECTIONS):
+  1. Executive Summary: Concise overview of the venture and its impact.
+  2. Problem Statement: Deep dive into the market pain points.
+  3. Solution Overview: How the product uniquely addresses the problem.
+  4. Platform/Business Architecture: High-level system or operational design.
+  5. Product/Token Mechanics: Technical inner workings (tailored to project type).
+  6. Validation or Traction Mechanism: Proof of concept or market fit strategy.
+  7. Investment/Monetization Model: How value is captured.
+  8. Tokenomics / Financial Model: Detailed distribution or revenue strategy.
+  9. Governance / Operational Structure: Decision-making and legal entity design.
+  10. Roadmap: Milestones for Short, Mid, and Long term.
+  11. Security & Compliance: Risk mitigation and regulatory adherence.
+  12. Market Analysis: TAM/SAM/SOM and competitive landscape.
+  13. Community & Incentives: User acquisition and ecosystem growth.
+  14. Legal Considerations: Framework for operations and intellectual property.
+  15. Technical Implementation: Technology stack and data architecture.
+  16. Case Studies / Hypotheticals: Practical application of the solution.
+  17. Revenue Model Detail: Pricing tiers and lifetime value projections.
+  18. Team & Advisors: Strategic human capital requirements.
+  19. Risk & Challenges: Technical, market, and execution risks.
+  20. Appendices & Glossary: Definition of terms and technical references.
+
+  If information provided is insufficient, infer the most logical and professional strategy based on industry best practices.
   Return as JSON with "title" and "sections" array (each with "title" and "content" fields).`;
 
   const response = await withRetry(() => ai.models.generateContent({
