@@ -40,13 +40,16 @@ import BusinessHub from './components/BusinessHub';
 import AnalyticsView from './components/AnalyticsView';
 import RevenueStreamsView from './components/RevenueStreamsView';
 import RegistrationView from './components/RegistrationView';
-import BusinessOnePage from './components/BusinessOnePage';
+import BusinessAcquisitionPage from './components/BusinessOnePage';
 import DashboardView from './components/DashboardView';
 import WalletView from './components/WalletView';
 import SynthesisEnginePage from './components/SynthesisEnginePage';
 import BaseProtocolPage from './components/BaseProtocolPage';
 import AboutLabsPage from './components/AboutLabsPage';
 import ContactPage from './components/ContactPage';
+import SecurityAuditsPage from './components/SecurityAuditsPage';
+import PrivacyPolicyPage from './components/PrivacyPolicyPage';
+import BusinessDexInfoPage from './components/BusinessDexInfoPage';
 import Logo from './components/Logo';
 import { 
   StrategyInputs, 
@@ -56,7 +59,8 @@ import {
   HistoryEntry, 
   AppViewState, 
   UserAccount,
-  StrategyMapData
+  StrategyMapData,
+  BusinessListing
 } from './types';
 import { GeminiService } from './services/geminiService';
 
@@ -110,6 +114,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastAiResponse, setLastAiResponse] = useState<string>("");
+  const [initialAcquireMode, setInitialAcquireMode] = useState(false);
 
   const logoInputRef = useRef<HTMLInputElement>(null);
 
@@ -228,6 +233,65 @@ const App: React.FC = () => {
     setIsMobileMenuOpen(false); 
   };
 
+  const handleViewAcquisitionDetails = (business: BusinessListing, directToAcquire: boolean = false) => {
+    const mockResult: StrategyResult = {
+      summary: business.description,
+      viabilityScore: 88,
+      breakEvenMonth: "3",
+      breakEvenDescription: "Established and verified on Base.",
+      projections: [
+        { label: 'Jan', value: 12000 },
+        { label: 'Mar', value: 24000 },
+        { label: 'Jun', value: 48000 },
+        { label: 'Sep', value: 82000 },
+        { label: 'Dec', value: 125000 },
+      ],
+      suggestedStreams: [
+        { title: 'Base SaaS Fees', tag: 'Recurring', description: 'Core product subscription.', icon: 'repeat' },
+        { title: 'Protocol Yield', tag: 'Native', description: 'Yield generated from vault interaction.', icon: 'zap' }
+      ],
+      checklist: ["Smart Contract Audit", "Transfer Liquidity Locks", "Update Admin Multisig"],
+      strategicPillars: {
+        valueProposition: [business.description, "Institutional infrastructure", "High ARR multiple potential"],
+        targetSegments: ["Acquisition Seekers", "Venture Studios"]
+      },
+      technologies: [
+        { category: "Smart Contracts", tech: ["Solidity", "Foundry"] },
+        { category: "Protocol Layer", tech: ["Base Mainnet", "Chainlink Data Feeds"] }
+      ],
+      riskMatrix: [
+        { level: 'L', title: 'Network Load', description: 'Base handles high volume with low fees.' }
+      ],
+      roadmap: [
+        { timeline: "Past", title: "Genesis", description: "Successful launch and validation." }
+      ],
+      kpis: [
+        { label: "ARR", value: business.revenueARR, trend: "+15%", description: "Verified on-chain." }
+      ],
+      storefront: {
+        heroTitle: business.name,
+        heroSubtitle: business.description,
+        ctaText: "Acquire",
+        welcomeMessage: `Greetings. I am the acquisition analyst for ${business.name}.`,
+        acceptedCurrencies: ["USDC", "ETH"],
+        contractAddress: "0x" + Math.random().toString(16).slice(2, 42)
+      }
+    };
+
+    const mockInputs: StrategyInputs = {
+      ...DEFAULT_INPUTS,
+      productName: business.name,
+      concept: business.description,
+      transformation: "Asset Liquidation",
+      problem: business.description
+    };
+
+    setResult(mockResult);
+    setInputs(mockInputs);
+    setInitialAcquireMode(directToAcquire);
+    setViewState('ACQUISITION_DETAILS');
+  };
+
   const handleStartBlueprint = async () => {
     setActiveTab('blueprint');
     setLoading(true);
@@ -257,7 +321,7 @@ const App: React.FC = () => {
   const handleLaunchStorefront = (strategy: StrategyResult, finalInputs: StrategyInputs) => {
     setResult(strategy);
     setInputs(finalInputs);
-    setViewState('STOREFRONT');
+    setViewState('ACQUISITION_DETAILS');
   };
 
   const handleNewStrategy = () => {
@@ -357,8 +421,28 @@ const App: React.FC = () => {
     return <ContactPage onBack={() => setViewState('LANDING')} />;
   }
 
-  if (viewState === 'STOREFRONT' && result) {
-    return <BusinessOnePage result={result} inputs={inputs} onBack={() => setViewState('DASHBOARD')} />;
+  if (viewState === 'SECURITY_AUDITS') {
+    return <SecurityAuditsPage onBack={() => setViewState('LANDING')} />;
+  }
+
+  if (viewState === 'PRIVACY_POLICY') {
+    return <PrivacyPolicyPage onBack={() => setViewState('LANDING')} />;
+  }
+
+  if (viewState === 'BUSINESS_DEX_INFO') {
+    return <BusinessDexInfoPage onBack={() => setViewState('LANDING')} />;
+  }
+
+  if (viewState === 'ACQUISITION_DETAILS' && result) {
+    return (
+      <BusinessAcquisitionPage 
+        result={result} 
+        inputs={inputs} 
+        onBack={() => setViewState('BUSINESS_HUB')} 
+        isOwner={currentUser?.history.some(h => h.inputs.productName === inputs.productName)}
+        initialShowAuction={initialAcquireMode}
+      />
+    );
   }
 
   return (
@@ -396,7 +480,7 @@ const App: React.FC = () => {
               <span className="hidden xs:inline text-zinc-700 text-xs md:text-sm">/</span>
               <span className="text-primary text-xs md:text-sm font-medium truncate">
                 {activeTab === 'registration' ? 'Incorporation Terminal' : 
-                 activeTab === 'business_hub' ? 'Business Hub' : 
+                 activeTab === 'business_hub' ? 'Business Dex' : 
                  activeTab === 'analytics' ? 'Technical Analytics' : 
                  activeTab === 'revenue' ? 'Yield Engine' : 
                  activeTab === 'blueprint' ? 'Venture Blueprint' :
@@ -444,7 +528,7 @@ const App: React.FC = () => {
               inputs={inputs} 
               onNewStrategy={handleNewStrategy} 
               onNavigate={setActiveTab}
-              onLaunchStorefront={() => setViewState('STOREFRONT')}
+              onLaunchStorefront={() => { setInitialAcquireMode(false); setViewState('ACQUISITION_DETAILS'); }}
             />
           )}
 
@@ -617,7 +701,12 @@ const App: React.FC = () => {
             <RevenueStreamsView result={result} loading={loading} />
           )}
           
-          {activeTab === 'business_hub' && <BusinessHub currentUser={currentUser as UserProfile} />}
+          {activeTab === 'business_hub' && (
+            <BusinessHub 
+              currentUser={currentUser as UserProfile} 
+              onViewDetails={handleViewAcquisitionDetails}
+            />
+          )}
           
           {activeTab === 'profile' && <ProfileView profile={currentUser as UserProfile} onUpdate={(p: UserProfile) => {setCurrentUser((prev: UserAccount | null) => prev ? {...prev, ...p} : null); localStorage.setItem('venyro_session', JSON.stringify({...currentUser!, ...p}));}} onSignOut={handleSignOut} />}
         </div>

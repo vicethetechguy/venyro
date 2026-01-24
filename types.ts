@@ -49,6 +49,7 @@ export interface StrategyResult {
   suggestedStreams: SuggestedStream[];
   checklist: string[];
   viabilityScore: number;
+  trustScore?: number; // 0-100 Venyro Trust Index
   breakEvenMonth: string;
   breakEvenDescription: string;
   strategicPillars: {
@@ -148,25 +149,17 @@ export interface BusinessListing {
   id: string;
   name: string;
   description: string;
-  price: string;
-  revenue: string;
+  askingPrice: string;
+  valuation: string;
+  revenueARR: string;
+  multiple: string;
+  equityOffered: string;
   category: string;
   ownerId: string;
   contactEmail: string;
-  contactPhone?: string;
-}
-
-export interface TechTeamListing {
-  id: string;
-  name: string;
-  specialties: string[];
-  description: string;
-  hourlyRate: string;
-  teamSize: number;
-  rating: number;
-  ownerId: string;
-  contactEmail: string;
-  contactPhone?: string;
+  trustScore: number;
+  verifiedRevenue: boolean;
+  auditPassed: boolean;
 }
 
 export type AppViewState = 
@@ -179,10 +172,13 @@ export type AppViewState =
   | 'PRICING' 
   | 'BUSINESS_HUB' 
   | 'REGISTRATION' 
-  | 'STOREFRONT'
+  | 'ACQUISITION_DETAILS'
   | 'SYNTHESIS_ENGINE'
   | 'BASE_PROTOCOL'
   | 'ABOUT_LABS'
-  | 'CONTACT';
+  | 'CONTACT'
+  | 'SECURITY_AUDITS'
+  | 'PRIVACY_POLICY'
+  | 'BUSINESS_DEX_INFO';
 
 export type AuthMode = 'SIGN_IN' | 'SIGN_UP' | 'WALLET';
