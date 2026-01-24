@@ -38,7 +38,7 @@ interface Message {
 }
 
 const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
-  const [stage, setStage] = useState(1);
+  const [stage, setStage] = useState<number>(1);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState('');
@@ -76,7 +76,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
       const response = await gemini.handleRegistrationStep(s, initialInput, history);
       setMessages(prev => [...prev, { role: 'advisor', text: response.text, stage: s }]);
       if (response.data) {
-        setRegistrationData(prev => ({ ...prev, ...response.data }));
+        setRegistrationData((prev: any) => ({ ...prev, ...response.data }));
       }
     } catch (err) {
       console.error(err);
@@ -106,11 +106,11 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
       setMessages(prev => [...prev, { role: 'advisor', text: response.text, stage }]);
       
       if (response.data) {
-        setRegistrationData(prev => ({ ...prev, ...response.data }));
+        setRegistrationData((prev: any) => ({ ...prev, ...response.data }));
       }
 
       if (response.proceed || response.text.toLowerCase().includes('next step') || response.text.toLowerCase().includes('let\'s continue')) {
-        setStage(prev => prev + 1);
+        setStage((prev: number) => prev + 1);
       }
     } catch (err) {
       console.error(err);
@@ -122,8 +122,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
   const handleQuickSelect = (val: string) => {
     setInput(val);
     setTimeout(() => {
-      // Small delay to let the state update if needed, though handleUserInput uses local 'input' normally
-      // But we call it with a closure-safe way
+      // Small delay to let the state update if needed
     }, 10);
     
     // Manual trigger for speed
@@ -139,9 +138,9 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
     
     gemini.handleRegistrationStep(stage, { userInput: val }, history).then(response => {
       setMessages(prev => [...prev, { role: 'advisor', text: response.text, stage }]);
-      if (response.data) setRegistrationData(prev => ({ ...prev, ...response.data }));
+      if (response.data) setRegistrationData((prev: any) => ({ ...prev, ...response.data }));
       if (response.proceed || response.text.toLowerCase().includes('next step') || response.text.toLowerCase().includes('let\'s continue')) {
-        setStage(prev => prev + 1);
+        setStage((prev: number) => prev + 1);
       }
       setLoading(false);
     }).catch(() => setLoading(false));
