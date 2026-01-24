@@ -20,7 +20,8 @@ import {
   BrainCircuit,
   ListOrdered,
   BookOpen,
-  ArrowRight
+  ArrowRight,
+  Check
 } from 'lucide-react';
 import { BlueprintResult } from '../types';
 import { GeminiService } from '../services/geminiService';
@@ -83,6 +84,24 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  const handleShare = () => {
+    if (navigator.share && blueprint) {
+      navigator.share({
+        title: blueprint.title,
+        text: `Venyro Venture Blueprint: ${blueprint.title}`,
+        url: window.location.href,
+      }).catch(() => {
+        setShowShareToast(true);
+        setTimeout(() => setShowShareToast(false), 3000);
+      });
+    } else {
+      // Fallback: Copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      setShowShareToast(true);
+      setTimeout(() => setShowShareToast(false), 3000);
+    }
   };
 
   const handleSendMessage = async (instruction: string) => {
@@ -174,7 +193,12 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
             </div>
             <h1 className="text-lg md:text-3xl font-bold text-primary truncate tracking-tight">{blueprint.title}</h1>
           </div>
-          <div className="flex items-center gap-2 md:gap-3 shrink-0">
+          <div className="flex items-center gap-2 md:gap-3 shrink-0 relative">
+            {showShareToast && (
+              <div className="absolute bottom-full right-0 mb-4 px-4 py-2 bg-emerald-500 text-background text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-2xl animate-in slide-in-from-bottom-2 flex items-center gap-2">
+                <Check className="w-3 h-3" /> Shared Successfully
+              </div>
+            )}
             <button 
               onClick={handleDownloadMarkdown}
               className="p-2 md:px-4 md:py-2 rounded-xl bg-surface border border-border text-zinc-400 hover:text-primary text-[10px] font-bold transition-all"
@@ -183,7 +207,7 @@ const BlueprintView: React.FC<BlueprintViewProps> = ({ blueprint, loading, onGen
               <FileDown className="w-4 h-4 md:mr-2 md:inline" /> <span className="hidden md:inline">MD</span>
             </button>
             <button 
-              onClick={handleSendMessage}
+              onClick={handleShare}
               className="hidden sm:flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-background font-bold text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-xl active:scale-95"
             >
               <Share2 className="w-3.5 h-3.5" /> Share

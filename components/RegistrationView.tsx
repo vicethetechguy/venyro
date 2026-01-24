@@ -132,26 +132,12 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
   const handleGoBack = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (confirm("Go back to selection? Your current session progress will be lost.")) {
-      setMode('CHOICE');
-      setPath(null);
-      setStep(1);
-      setMessages([]);
-      setRegistrationData({});
-    }
-  };
-
-  const handleCancel = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (confirm("Cancel on-chain registration? Progress will not be saved.")) {
-      setMode('CHOICE');
-      setPath(null);
-      setStep(1);
-      setMessages([]);
-      setRegistrationData({});
-      onExit();
-    }
+    // Return to the choice screen immediately
+    setMode('CHOICE');
+    setPath(null);
+    setStep(1);
+    setMessages([]);
+    setRegistrationData({});
   };
 
   const handleFinish = async () => {
@@ -191,10 +177,10 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
           </div>
           <button 
             onClick={() => onExit()}
-            className="p-2 text-zinc-500 hover:text-white transition-colors"
+            className="p-2 text-zinc-500 hover:text-primary transition-all active:scale-95 bg-zinc-900 border border-white/5 rounded-xl"
             title="Return to Dashboard"
           >
-            <X className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
         </header>
 
@@ -269,16 +255,9 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
           <button 
             onClick={handleGoBack}
             className="p-2 md:p-2.5 bg-zinc-900 border border-white/5 rounded-xl text-zinc-500 hover:text-primary transition-all hover:bg-white/5 active:scale-95 z-[110]"
-            title="Go Back"
+            title="Go Back to Selection"
           >
             <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
-          </button>
-          <button 
-            onClick={handleCancel}
-            className="p-2 md:p-2.5 bg-zinc-900 border border-white/5 rounded-xl text-zinc-500 hover:text-white transition-all hover:bg-red-500/10 active:scale-95 z-[110]"
-            title="Cancel Setup"
-          >
-            <X className="w-4 h-4 md:w-5 md:h-5" />
           </button>
           <div className="h-8 md:h-12 w-px bg-white/10 hidden xs:block"></div>
           <div className="min-w-0">
