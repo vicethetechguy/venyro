@@ -23,6 +23,7 @@ interface AnalyticsViewProps {
   onSelectHistory?: (item: HistoryEntry) => void;
   onDeleteHistory?: (id: string) => void;
   currentInputs?: StrategyInputs;
+  walletAddress?: string;
 }
 
 const AnalyticsView: React.FC<AnalyticsViewProps> = ({ 
@@ -31,7 +32,8 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
   history = [], 
   onSelectHistory, 
   onDeleteHistory,
-  currentInputs
+  currentInputs,
+  walletAddress
 }) => {
   if (loading) {
     return (
@@ -43,7 +45,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-16 pb-40 animate-in fade-in duration-700">
+    <div className="max-w-6xl mx-auto space-y-16 pb-20 animate-in fade-in duration-700">
       {!result ? (
         <div className="max-w-4xl mx-auto p-12 text-center py-20 animate-in fade-in slide-in-from-bottom-4">
           <div className="w-24 h-24 bg-surface/50 border border-border rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-2xl">
@@ -176,50 +178,35 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
             <p className="text-sm text-zinc-600 font-medium tracking-wide">No historical protocols found.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {history.map((entry) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {history.map((item) => (
               <div 
-                key={entry.id} 
-                className={`group relative p-8 rounded-[2.5rem] bg-surface/20 border transition-all duration-500 flex flex-col justify-between min-h-[220px] shadow-2xl overflow-hidden ${
-                  (result && currentInputs?.productName === entry.inputs.productName) 
-                  ? 'border-primary/40 bg-zinc-900/40' 
-                  : 'border-border hover:border-zinc-500 hover:bg-zinc-900/20'
-                }`}
+                key={item.id} 
+                className="group p-6 rounded-3xl bg-surface/20 border border-border hover:border-zinc-500 transition-all cursor-pointer relative"
+                onClick={() => onSelectHistory?.(item)}
               >
-                <div 
-                  className="cursor-pointer flex-1 space-y-5"
-                  onClick={() => onSelectHistory?.(entry)}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="w-10 h-10 bg-zinc-950 border border-white/5 rounded-xl flex items-center justify-center group-hover:border-primary/20 transition-all shadow-inner">
-                      <Target className="w-5 h-5 text-zinc-600 group-hover:text-primary transition-colors" />
-                    </div>
-                    <span className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest bg-black/40 px-2.5 py-1 rounded-md">{entry.date}</span>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-zinc-900 rounded-xl">
+                    <Target className="w-4 h-4 text-zinc-600 group-hover:text-primary transition-colors" />
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-bold text-primary truncate group-hover:translate-x-1 transition-transform">{entry.inputs.productName}</h3>
-                    <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed font-light">
-                      {entry.summary}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-6 mt-6 border-t border-white/5 flex items-center justify-between">
-                  <button 
-                    onClick={() => onSelectHistory?.(entry)}
-                    className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 hover:text-primary transition-all group-hover:translate-x-1"
-                  >
-                    Analyze Protocol <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      onDeleteHistory?.(entry.id);
+                      onDeleteHistory?.(item.id);
                     }}
-                    className="p-2.5 text-zinc-800 hover:text-red-500 transition-all"
+                    className="p-1.5 text-zinc-700 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
+                </div>
+                <h3 className="text-sm font-bold text-primary mb-1 truncate">{item.inputs.productName}</h3>
+                <p className="text-[10px] text-zinc-600 font-mono mb-3">{item.date}</p>
+                <div className="flex items-center justify-between">
+                   <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-bold text-zinc-500 uppercase">Score</span>
+                      <span className="text-xs font-bold text-primary">{item.viabilityScore}%</span>
+                   </div>
+                   <ChevronRight className="w-3 h-3 text-zinc-700 group-hover:text-primary transition-all" />
                 </div>
               </div>
             ))}
