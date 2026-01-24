@@ -107,7 +107,7 @@ const App: React.FC = () => {
   const logoInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = (field: keyof StrategyInputs, value: any) => {
-    setInputs(prev => ({ ...prev, [field]: value }));
+    setInputs((prev: StrategyInputs) => ({ ...prev, [field]: value }));
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,7 +129,7 @@ const App: React.FC = () => {
       const inferred = await gemini.inferStrategy(inputs.concept);
       const finalName = inputs.productName.trim() || inferred.suggestedName;
 
-      setInputs(prev => ({
+      setInputs((prev: StrategyInputs) => ({
         ...prev,
         productName: finalName,
         problem: inferred.pillars.market.draft,
@@ -238,7 +238,7 @@ const App: React.FC = () => {
 
   const handleRegistrationHandoff = (name: string, concept: string) => {
     setActiveTab('generation');
-    setInputs(prev => ({
+    setInputs((prev: StrategyInputs) => ({
       ...prev,
       productName: name,
       concept: concept
@@ -526,7 +526,7 @@ const App: React.FC = () => {
               blueprint={blueprintResult} 
               loading={loading} 
               onGenerate={handleStartBlueprint} 
-              onUpdateBlueprint={(updated) => {
+              onUpdateBlueprint={(updated: BlueprintResult) => {
                 setBlueprintResult(updated);
                 setLastAiResponse(JSON.stringify(updated));
               }}
@@ -552,7 +552,7 @@ const App: React.FC = () => {
           
           {activeTab === 'business_hub' && <BusinessHub currentUser={currentUser as UserProfile} />}
           
-          {activeTab === 'profile' && <ProfileView profile={currentUser as UserProfile} onUpdate={(p) => {setCurrentUser(prev => prev ? {...prev, ...p} : null); localStorage.setItem('venyro_session', JSON.stringify({...currentUser!, ...p}));}} onSignOut={handleSignOut} />}
+          {activeTab === 'profile' && <ProfileView profile={currentUser as UserProfile} onUpdate={(p: UserProfile) => {setCurrentUser((prev: UserAccount | null) => prev ? {...prev, ...p} : null); localStorage.setItem('venyro_session', JSON.stringify({...currentUser!, ...p}));}} onSignOut={handleSignOut} />}
           {activeTab === 'dashboard' && (
             <div className="max-w-4xl mx-auto text-center space-y-6 pt-16 md:pt-20">
                <div className="w-16 h-16 md:w-20 md:h-20 bg-surface border border-border rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center mx-auto shadow-2xl">

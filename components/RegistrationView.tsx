@@ -5,11 +5,8 @@ import {
   ChevronRight, 
   ArrowRight, 
   Sparkles, 
-  CheckCircle2, 
-  AlertCircle, 
   Target, 
   Users, 
-  Briefcase, 
   FileText, 
   ShieldAlert,
   Clock,
@@ -17,9 +14,6 @@ import {
   Loader2,
   Check,
   Building2,
-  Phone,
-  Mail,
-  Home,
   FileSearch,
   Zap,
   MessageSquare
@@ -74,13 +68,13 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
       }));
       
       const response = await gemini.handleRegistrationStep(s, initialInput, history);
-      setMessages(prev => [...prev, { role: 'advisor', text: response.text, stage: s }]);
+      setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: response.text, stage: s }]);
       if (response.data) {
         setRegistrationData((prev: any) => ({ ...prev, ...response.data }));
       }
     } catch (err) {
       console.error(err);
-      setMessages(prev => [...prev, { role: 'advisor', text: "I'm having trouble connecting to the incorporation database. Please refresh the terminal.", stage: s }]);
+      setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: "I'm having trouble connecting to the incorporation database. Please refresh the terminal.", stage: s }]);
     } finally {
       setLoading(false);
     }
@@ -92,7 +86,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
 
     const currentInput = input;
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: currentInput }]);
+    setMessages((prev: Message[]) => [...prev, { role: 'user', text: currentInput }]);
     setLoading(true);
 
     try {
@@ -103,7 +97,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
       }));
       
       const response = await gemini.handleRegistrationStep(stage, { userInput: currentInput }, history);
-      setMessages(prev => [...prev, { role: 'advisor', text: response.text, stage }]);
+      setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: response.text, stage }]);
       
       if (response.data) {
         setRegistrationData((prev: any) => ({ ...prev, ...response.data }));
@@ -120,15 +114,9 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
   };
 
   const handleQuickSelect = (val: string) => {
-    setInput(val);
-    setTimeout(() => {
-      // Small delay to let the state update if needed
-    }, 10);
-    
-    // Manual trigger for speed
-    setMessages(prev => [...prev, { role: 'user', text: val }]);
-    setLoading(true);
     setInput('');
+    setMessages((prev: Message[]) => [...prev, { role: 'user', text: val }]);
+    setLoading(true);
 
     const gemini = new GeminiService();
     const history = messages.map(m => ({
@@ -136,8 +124,8 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
       parts: [{ text: m.text }]
     }));
     
-    gemini.handleRegistrationStep(stage, { userInput: val }, history).then(response => {
-      setMessages(prev => [...prev, { role: 'advisor', text: response.text, stage }]);
+    gemini.handleRegistrationStep(stage, { userInput: val }, history).then((response: any) => {
+      setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: response.text, stage }]);
       if (response.data) setRegistrationData((prev: any) => ({ ...prev, ...response.data }));
       if (response.proceed || response.text.toLowerCase().includes('next step') || response.text.toLowerCase().includes('let\'s continue')) {
         setStage((prev: number) => prev + 1);
@@ -163,7 +151,6 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
-      {/* Dynamic Header with Progress */}
       <header className="h-24 shrink-0 border-b border-border/50 px-8 flex items-center justify-between bg-background/80 backdrop-blur-xl z-20">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-primary text-background rounded-2xl shadow-xl">
@@ -172,7 +159,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
           <div>
             <h1 className="text-xl font-bold text-primary tracking-tight">Incorporation Terminal</h1>
             <p className="text-[10px] uppercase font-bold text-zinc-500 tracking-[0.2em] flex items-center gap-2">
-              Mission {stage} of 9 <ChevronRight className="w-3 h-3" /> {STAGES[stage-1].title}
+              Mission {stage} of 9 <ChevronRight className="w-3 h-3" /> {STAGES[stage-1]?.title || 'Protocol'}
             </p>
           </div>
         </div>
@@ -191,7 +178,6 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
         </div>
       </header>
 
-      {/* Main Terminal Chat */}
       <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:px-20 lg:py-12 space-y-8 scrollbar-hide">
         <div className="max-w-4xl mx-auto space-y-10">
           {messages.length === 0 && loading && (
@@ -236,11 +222,8 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
         </div>
       </div>
 
-      {/* Terminal Input Controls */}
       <footer className="shrink-0 p-4 md:p-8 bg-background/80 backdrop-blur-xl border-t border-border/50 z-20">
         <div className="max-w-4xl mx-auto space-y-6">
-          
-          {/* Quick Action Suggestions */}
           {!loading && stage < 9 && (
             <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-1">
               {stage === 1 && messages.length > 0 && (
