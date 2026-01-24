@@ -31,11 +31,9 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { action, payload, history, context } = req.body;
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
-
-  if (!apiKey) return res.status(500).json({ error: 'Strategic Engine Key is missing.' });
-
-  const ai = new GoogleGenAI({ apiKey });
+  
+  // Strictly use process.env.API_KEY for initialization as per guidelines.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   try {
     switch (action) {

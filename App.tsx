@@ -326,7 +326,7 @@ const App: React.FC = () => {
     <div className="flex bg-background text-secondary h-screen overflow-hidden font-sans relative">
       <Sidebar 
         activeTab={activeTab} 
-        setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} 
+        setActiveTab={(t: string) => { setActiveTab(t); setIsMobileMenuOpen(false); }} 
         profile={currentUser as UserProfile} 
         history={history} 
         onHistoryItemClick={handleHistoryItemClick} 
