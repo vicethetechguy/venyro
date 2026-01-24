@@ -70,7 +70,8 @@ async function handleRegistrationStep(ai: any, step: number, input: any, history
     3. On-chain Handle (ENS/Naming).
     4. Cap-Table Architecture (Owner wallet/Shareholders).
     5. Payment Logic (Setting up the order link for local currencies).
-  - Current Step: Stage ${step}.
+  - Terminology: Always use "Step", never "Stage".
+  - Current Step: Step ${step}.
   - Output: JSON object with 'text' (advisor response) and 'data' (extracted contract fields). At step 8 or 9, also provide 'storefront' data.`;
 
   const response = await withRetry(() => ai.models.generateContent({

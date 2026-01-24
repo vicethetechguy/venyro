@@ -13,7 +13,9 @@ import {
   Wallet,
   Zap,
   Building2,
-  Activity
+  Activity,
+  X,
+  History
 } from 'lucide-react';
 import { GeminiService } from '../services/geminiService';
 import { StrategyResult, StrategyInputs } from '../types';
@@ -27,21 +29,23 @@ interface RegistrationViewProps {
 interface Message {
   role: 'advisor' | 'user';
   text: string;
-  stage?: number;
+  step?: number;
 }
 
 type RegistryMode = 'CHOICE' | 'PROCESS';
+type RegistryPath = 'NEW' | 'EXISTING';
 
 const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunchStorefront }) => {
   const [mode, setMode] = useState<RegistryMode>('CHOICE');
-  const [stage, setStage] = useState<number>(1);
+  const [path, setPath] = useState<RegistryPath | null>(null);
+  const [step, setStep] = useState<number>(1);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState('');
   const [registrationData, setRegistrationData] = useState<any>({});
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const STAGES = [
+  const STEPS = [
     { id: 1, title: 'Orientation' },
     { id: 2, title: 'Contract Logic' },
     { id: 3, title: 'Operational' },
@@ -55,12 +59,12 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
 
   useEffect(() => {
     if (mode === 'PROCESS' && messages.length === 0) {
-      initiateStage(1);
+      initiateStep(1);
     }
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, mode]);
 
-  const initiateStage = async (s: number, initialInput: any = {}) => {
+  const initiateStep = async (s: number, initialInput: any = {}) => {
     setLoading(true);
     try {
       const gemini = new GeminiService();
@@ -70,13 +74,13 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
       }));
       
       const response = await gemini.handleRegistrationStep(s, initialInput, history);
-      setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: response.text, stage: s }]);
+      setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: response.text, step: s }]);
       if (response.data) {
         setRegistrationData((prev: any) => ({ ...prev, ...response.data }));
       }
     } catch (err) {
       console.error(err);
-      setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: "Strategic Link Error. Please refresh the terminal.", stage: s }]);
+      setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: "Strategic Link Error. Please refresh the terminal.", step: s }]);
     } finally {
       setLoading(false);
     }
@@ -98,15 +102,15 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
         parts: [{ text: m.text }]
       }));
       
-      const response = await gemini.handleRegistrationStep(stage, { userInput: currentInput }, history);
-      setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: response.text, stage }]);
+      const response = await gemini.handleRegistrationStep(step, { userInput: currentInput }, history);
+      setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: response.text, step }]);
       
       if (response.data) {
         setRegistrationData((prev: any) => ({ ...prev, ...response.data }));
       }
 
-      if (response.proceed || response.text.toLowerCase().includes('next step') || response.text.toLowerCase().includes('let\'s continue')) {
-        setStage((prev: number) => Math.min(prev + 1, 9));
+      if (response.proceed || response.text.toLowerCase().includes('next step') || response.text.toLowerCase().includes('let\'s continue') || response.text.toLowerCase().includes('moving forward')) {
+        setStep((prev: number) => Math.min(prev + 1, 9));
       }
     } catch (err) {
       console.error(err);
@@ -116,9 +120,20 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
   };
 
   const startRegistration = (isNew: boolean) => {
+    setPath(isNew ? 'NEW' : 'EXISTING');
     setMode('PROCESS');
     if (!isNew) {
       setMessages([{ role: 'user', text: "I want to plug-in an existing business protocol." }]);
+    }
+  };
+
+  const handleCancel = () => {
+    if (confirm("Cancel on-chain registration? Progress will not be saved.")) {
+      setMode('CHOICE');
+      setPath(null);
+      setStep(1);
+      setMessages([]);
+      setRegistrationData({});
     }
   };
 
@@ -152,7 +167,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
   if (mode === 'CHOICE') {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 animate-in fade-in duration-700">
-        <div className="max-w-4xl w-full space-y-12">
+        <div className="max-w-4xl w-full space-y-8 md:space-y-12">
           <div className="text-center space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
               <ShieldCheck className="w-3 h-3 text-primary" /> On-chain Registry
@@ -164,38 +179,38 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             <button 
               onClick={() => startRegistration(true)}
-              className="group p-8 md:p-10 rounded-[2.5rem] bg-surface/20 border border-border hover:border-primary/50 transition-all duration-500 text-left space-y-6 relative overflow-hidden"
+              className="group p-6 md:p-8 rounded-[2rem] bg-surface/20 border border-border hover:border-primary/50 transition-all duration-500 text-left space-y-4 md:space-y-6 relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Plus className="w-24 h-24" />
+              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                <Plus className="w-16 h-16" />
               </div>
-              <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-black shadow-xl group-hover:scale-110 transition-transform">
-                <Sparkles className="w-7 h-7" />
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary flex items-center justify-center text-black shadow-xl group-hover:scale-110 transition-transform">
+                <Sparkles className="w-6 h-6 md:w-7 md:h-7" />
               </div>
-              <div className="space-y-2">
-                <h3 className="text-xl md:text-2xl font-bold text-primary">Incept New Business</h3>
-                <p className="text-sm text-zinc-500 font-light leading-relaxed">Synthesize a fresh venture architecture, deploy new smart contracts, and launch on Base.</p>
+              <div className="space-y-1.5">
+                <h3 className="text-lg md:text-2xl font-bold text-primary">Incept New Business</h3>
+                <p className="text-[11px] md:text-sm text-zinc-500 font-light leading-relaxed">Synthesize a fresh venture architecture, deploy new smart contracts, and launch on Base.</p>
               </div>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-primary uppercase tracking-widest pt-4">
+              <div className="flex items-center gap-2 text-[9px] font-bold text-primary uppercase tracking-widest pt-2">
                 Start Inception <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
 
             <button 
               onClick={() => startRegistration(false)}
-              className="group p-8 md:p-10 rounded-[2.5rem] bg-surface/20 border border-border hover:border-emerald-500/50 transition-all duration-500 text-left space-y-6 relative overflow-hidden"
+              className="group p-6 md:p-8 rounded-[2rem] bg-surface/20 border border-border hover:border-emerald-500/50 transition-all duration-500 text-left space-y-4 md:space-y-6 relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                <LinkIcon className="w-24 h-24" />
+              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                <History className="w-16 h-16" />
               </div>
-              <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-border flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
-                <Plus className="w-7 h-7" />
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-zinc-900 border border-border flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+                <Plus className="w-6 h-6 md:w-7 md:h-7" />
               </div>
-              <div className="space-y-2">
-                <h3 className="text-xl md:text-2xl font-bold text-primary">Plug-in Existing Asset</h3>
-                <p className="text-sm text-zinc-500 font-light leading-relaxed">Import an already existing business protocol or contract to leverage the Venyro yield engine.</p>
+              <div className="space-y-1.5">
+                <h3 className="text-lg md:text-2xl font-bold text-primary">Plug-in Existing Asset</h3>
+                <p className="text-[11px] md:text-sm text-zinc-500 font-light leading-relaxed">Import an already existing business protocol or contract to leverage the Venyro yield engine.</p>
               </div>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-500 uppercase tracking-widest pt-4">
+              <div className="flex items-center gap-2 text-[9px] font-bold text-emerald-500 uppercase tracking-widest pt-2">
                 Verify & Plug-in <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
@@ -208,26 +223,34 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
       <header className="h-16 md:h-24 shrink-0 border-b border-border/50 px-4 md:px-8 flex items-center justify-between bg-background/80 backdrop-blur-xl z-20">
-        <div className="flex items-center gap-2 md:gap-4 shrink-0">
-          <div className="p-1.5 md:p-3 bg-primary text-background rounded-lg md:rounded-2xl shadow-xl">
-            <ShieldCheck className="w-3.5 h-3.5 md:w-5 md:h-5" />
-          </div>
+        <div className="flex items-center gap-3 md:gap-5 shrink-0">
+          <button 
+            onClick={handleCancel}
+            className="p-2 md:p-2.5 bg-zinc-900 border border-white/5 rounded-xl text-zinc-500 hover:text-white transition-all hover:bg-red-500/10 active:scale-95"
+            title="Cancel Setup"
+          >
+            <X className="w-4 h-4 md:w-5 md:h-5" />
+          </button>
+          <div className="h-8 md:h-12 w-px bg-white/10 hidden xs:block"></div>
           <div>
-            <h1 className="text-sm md:text-xl font-bold text-primary tracking-tight">On-chain Setup</h1>
-            <p className="text-[7px] md:text-[10px] uppercase font-bold text-zinc-500 tracking-wider flex items-center gap-1">
-              Step {stage}/9 <ChevronRight className="w-2.5 h-2.5" /> <span className="hidden sm:inline">{STAGES[stage-1]?.title}</span>
+            <h1 className="text-xs md:text-lg font-bold text-primary tracking-tight flex items-center gap-2">
+              {path === 'NEW' ? 'New Business Synthesis' : 'Existing Asset Integration'}
+              <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${path === 'NEW' ? 'bg-primary' : 'bg-emerald-500'}`}></div>
+            </h1>
+            <p className="text-[7px] md:text-[9px] uppercase font-bold text-zinc-500 tracking-wider flex items-center gap-1.5 mt-0.5">
+              Step {step}/9 <ChevronRight className="w-2.5 h-2.5" /> <span className="hidden sm:inline">{STEPS[step-1]?.title}</span>
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-1 md:gap-2">
-          {STAGES.map((s) => (
+          {STEPS.map((s) => (
             <div 
               key={s.id}
-              className={`h-1 rounded-full transition-all duration-500 ${
-                s.id === stage ? 'w-4 md:w-6 bg-primary shadow-[0_0_6px_#fff]' : 
-                s.id < stage ? 'w-1.5 md:w-2 bg-emerald-500/40' : 
-                'w-1.5 md:w-2 bg-zinc-800'
+              className={`h-1.5 rounded-full transition-all duration-700 ease-in-out ${
+                s.id === step ? 'w-5 md:w-8 bg-primary shadow-[0_0_10px_#fff]' : 
+                s.id < step ? 'w-2 md:w-3 bg-emerald-500' : 
+                'w-2 md:w-3 bg-zinc-800'
               }`}
             />
           ))}
@@ -242,10 +265,13 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
                 <div className={`px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-xl ${
                   m.role === 'user' 
                   ? 'bg-primary text-background font-bold text-xs' 
-                  : 'bg-surface/40 border border-border text-zinc-300'
+                  : `bg-surface/40 border ${step > (m.step || 0) ? 'border-emerald-500/20' : 'border-border'} text-zinc-300`
                 }`}>
                   <p className="text-xs md:text-sm leading-relaxed whitespace-pre-wrap">{m.text}</p>
                 </div>
+                {m.role === 'advisor' && m.step && (
+                   <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest mt-2 ml-2">Protocol Message • Step {m.step}</span>
+                )}
               </div>
             </div>
           ))}
@@ -253,7 +279,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
             <div className="flex justify-start">
               <div className="px-4 py-3 bg-surface/40 border border-border rounded-xl flex items-center gap-3">
                 <Logo isGenerating={true} className="h-3.5 w-3.5" hideText />
-                <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-zinc-500 italic">Processing...</span>
+                <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-zinc-500 italic">Processing Step {step}...</span>
               </div>
             </div>
           )}
@@ -263,7 +289,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
 
       <footer className="shrink-0 p-4 md:p-8 bg-background/80 backdrop-blur-xl border-t border-border/50 z-20">
         <div className="max-w-3xl mx-auto space-y-4">
-          {stage === 9 ? (
+          {step === 9 ? (
              <div className="p-4 md:p-8 rounded-2xl md:rounded-[2rem] bg-zinc-900 border border-emerald-500/30 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xl">
                <div className="space-y-1 text-center md:text-left">
                  <h3 className="text-base md:text-lg font-bold text-emerald-400 flex items-center justify-center md:justify-start gap-2">
@@ -288,13 +314,13 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
                 type="text" 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={loading ? "Architect is processing..." : "Type response..."}
+                placeholder={loading ? "Architect is processing..." : `Next: ${STEPS[step-1]?.title}...`}
                 className="w-full bg-surface/30 border border-border rounded-xl md:rounded-2xl pl-12 pr-14 py-3.5 md:py-5 text-xs md:text-sm text-primary focus:outline-none focus:border-zinc-500 transition-all shadow-xl"
               />
               <button 
                 type="submit"
                 disabled={!input.trim() || loading}
-                className="absolute right-2 top-2 bottom-2 w-10 h-10 md:w-12 md:h-12 bg-primary text-background rounded-lg md:rounded-xl flex items-center justify-center hover:scale-105 active:scale-90 transition-all disabled:opacity-20"
+                className="absolute right-2 top-2 bottom-2 w-10 h-10 md:w-12 md:h-12 bg-primary text-background rounded-lg md:rounded-xl flex items-center justify-center hover:scale-105 active:scale-90 transition-all disabled:opacity-20 shadow-lg"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
@@ -308,7 +334,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff, onLaunch
              </div>
              <div className="flex items-center gap-1.5">
                <Wallet className="w-2.5 h-2.5" />
-               <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-wider text-zinc-500">Secured</span>
+               <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-wider text-zinc-500">Secured Protocol</span>
              </div>
           </div>
         </div>
