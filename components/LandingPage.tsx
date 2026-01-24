@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { 
   Sparkles, 
@@ -13,7 +12,8 @@ import {
   Users,
   Briefcase,
   Layers,
-  Globe
+  Globe,
+  CheckCircle2
 } from 'lucide-react';
 import Logo from './Logo';
 import { AppViewState } from '../types';
@@ -95,13 +95,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto relative z-10 scroll-smooth">
         {/* Hero Section */}
-        <section className="flex flex-col items-center justify-center px-6 pt-20 md:pt-32 pb-32 md:pb-48 max-w-7xl mx-auto text-center">
+        <section className="flex flex-col items-center justify-center px-4 pt-20 md:pt-32 pb-32 md:pb-48 max-w-7xl mx-auto text-center">
           <div className="inline-flex items-center gap-3 px-5 md:px-6 py-2 rounded-full bg-zinc-900/50 border border-white/5 text-[9px] md:text-[10px] font-medium text-zinc-500 uppercase tracking-[0.3em] mb-10 md:mb-12 animate-in slide-in-from-bottom-2 duration-500 backdrop-blur-md">
             <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_12px_#fff]"></div>
             Venyro Tactical Labs v2.4.0
           </div>
           
-          <h1 className="text-5xl md:text-7xl lg:text-[9.5rem] font-medium text-primary tracking-tighter leading-[1] md:leading-[0.9] mb-10 md:mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+          <h1 className="text-4xl md:text-7xl lg:text-[9.5rem] font-medium text-primary tracking-tighter leading-[1.1] md:leading-[0.9] mb-10 md:mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 max-w-[95vw] md:max-w-none mx-auto">
             Venture architecture,<br />
             <span className="text-zinc-600">at machine speed.</span>
           </h1>
@@ -110,7 +110,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
             Synthesize professional business strategies and investor-ready blueprints in seconds. 
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 px-4 sm:px-0">
             <button 
               onClick={onGetStarted}
               className="w-full sm:w-auto px-10 md:px-20 py-5 md:py-7 bg-primary text-background rounded-2xl md:rounded-[2.5rem] font-medium text-sm md:text-base uppercase tracking-widest hover:bg-white transition-all shadow-2xl shadow-white/10 flex items-center justify-center gap-4 active:scale-95 transform group"
@@ -188,9 +188,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
                   </div>
                 </div>
               </div>
-              {/* Decorative elements */}
-              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
-              <div className="absolute -top-10 -right-10 w-48 h-48 bg-emerald-500/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+              {/* Decorative elements wrapped for overflow containment */}
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl animate-pulse -z-10"></div>
+              <div className="absolute -top-10 -right-10 w-48 h-48 bg-emerald-500/5 rounded-full blur-[100px] animate-pulse -z-10" style={{ animationDelay: '2s' }}></div>
             </div>
           </div>
         </section>
@@ -277,13 +277,5 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
     </div>
   );
 };
-
-// Internal CheckCircle2 definition for visual completeness if not imported
-const CheckCircle2 = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
-    <path d="m9 12 2 2 4-4"/>
-  </svg>
-);
 
 export default LandingPage;
