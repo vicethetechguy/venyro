@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { 
   Sparkles, 
@@ -39,6 +40,13 @@ import BusinessHub from './components/BusinessHub';
 import AnalyticsView from './components/AnalyticsView';
 import RevenueStreamsView from './components/RevenueStreamsView';
 import RegistrationView from './components/RegistrationView';
+import BusinessOnePage from './components/BusinessOnePage';
+import DashboardView from './components/DashboardView';
+import WalletView from './components/WalletView';
+import SynthesisEnginePage from './components/SynthesisEnginePage';
+import BaseProtocolPage from './components/BaseProtocolPage';
+import AboutLabsPage from './components/AboutLabsPage';
+import ContactPage from './components/ContactPage';
 import Logo from './components/Logo';
 import { 
   StrategyInputs, 
@@ -80,7 +88,7 @@ const App: React.FC = () => {
     return session ? 'DASHBOARD' : 'LANDING';
   });
 
-  const [activeTab, setActiveTab] = useState('generation');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [step, setStep] = useState<'INITIAL' | 'MAP' | 'REPORT'>('INITIAL');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -121,6 +129,7 @@ const App: React.FC = () => {
   };
 
   const startInference = async () => {
+    setActiveTab('generation');
     setLoading(true);
     setError(null);
     try {
@@ -141,12 +150,7 @@ const App: React.FC = () => {
       setLastAiResponse(JSON.stringify(inferred));
       setStep('MAP');
     } catch (err: any) {
-      const msg = err.message || "";
-      if (msg.includes("API key expired") || msg.includes("INVALID_ARGUMENT")) {
-        setError("Strategic Engine Connection Expired. Please refresh your session or contact administration.");
-      } else {
-        setError(err.message || "Synthesis engine failed. Please try again.");
-      }
+      setError(err.message || "Synthesis engine failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -188,12 +192,7 @@ const App: React.FC = () => {
         }
       }
     } catch (err: any) {
-      const msg = err.message || "";
-      if (msg.includes("API key expired") || msg.includes("INVALID_ARGUMENT")) {
-        setError("Synthesis Authorization Expired. A system refresh is required.");
-      } else {
-        setError(err.message || "Full synthesis failed.");
-      }
+      setError(err.message || "Full synthesis failed.");
     } finally {
       setLoading(false);
     }
@@ -225,7 +224,7 @@ const App: React.FC = () => {
     setInputs((prev: StrategyInputs) => i.inputs); 
     setLastAiResponse(JSON.stringify(i));
     setStep('REPORT'); 
-    setActiveTab('generation'); 
+    setActiveTab('dashboard');
     setIsMobileMenuOpen(false); 
   };
 
@@ -239,12 +238,7 @@ const App: React.FC = () => {
       setBlueprintResult(res);
       setLastAiResponse(JSON.stringify(res));
     } catch (err: any) {
-      const msg = err.message || "";
-      if (msg.includes("API key expired") || msg.includes("INVALID_ARGUMENT")) {
-        setError("Blueprint Architect Authorization Expired.");
-      } else {
-        setError(err.message || "Blueprint drafting failed.");
-      }
+      setError(err.message || "Blueprint drafting failed.");
     } finally {
       setLoading(false);
     }
@@ -258,6 +252,12 @@ const App: React.FC = () => {
       concept: concept
     }));
     startInference();
+  };
+
+  const handleLaunchStorefront = (strategy: StrategyResult, finalInputs: StrategyInputs) => {
+    setResult(strategy);
+    setInputs(finalInputs);
+    setViewState('STOREFRONT');
   };
 
   const handleNewStrategy = () => {
@@ -306,12 +306,17 @@ const App: React.FC = () => {
     }
   };
 
+  const handleNavigateLandingLink = (view: AppViewState) => {
+    setViewState(view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (viewState === 'LANDING') {
     return (
       <LandingPage 
         onGetStarted={() => currentUser ? setViewState('DASHBOARD') : setViewState('AUTH')} 
         onSignIn={() => setViewState('AUTH')}
-        onNavigate={setViewState}
+        onNavigate={handleNavigateLandingLink}
       />
     );
   }
@@ -334,6 +339,26 @@ const App: React.FC = () => {
 
   if (viewState === 'PRICING') {
     return <PricingPage onBack={() => setViewState('LANDING')} onSelectPlan={handleSelectPlan} />;
+  }
+
+  if (viewState === 'SYNTHESIS_ENGINE') {
+    return <SynthesisEnginePage onBack={() => setViewState('LANDING')} />;
+  }
+
+  if (viewState === 'BASE_PROTOCOL') {
+    return <BaseProtocolPage onBack={() => setViewState('LANDING')} />;
+  }
+
+  if (viewState === 'ABOUT_LABS') {
+    return <AboutLabsPage onBack={() => setViewState('LANDING')} />;
+  }
+
+  if (viewState === 'CONTACT') {
+    return <ContactPage onBack={() => setViewState('LANDING')} />;
+  }
+
+  if (viewState === 'STOREFRONT' && result) {
+    return <BusinessOnePage result={result} inputs={inputs} onBack={() => setViewState('DASHBOARD')} />;
   }
 
   return (
@@ -363,7 +388,11 @@ const App: React.FC = () => {
               <Menu className="w-5 h-5 text-zinc-400" />
             </button>
             <div className="flex items-center gap-2 md:gap-4 overflow-hidden text-ellipsis whitespace-nowrap">
-              <span className="hidden xs:inline text-zinc-500 text-xs md:text-sm cursor-pointer hover:text-primary transition-colors shrink-0" onClick={() => setViewState('LANDING')}>Venyro Labs</span>
+              <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setViewState('LANDING')}>
+                <span className="hidden xs:inline text-zinc-500 text-xs md:text-sm group-hover:text-primary transition-colors shrink-0">Venyro</span>
+                <span className="xs:hidden text-primary font-bold text-xs">Venyro Base L2</span>
+                <span className="hidden xs:inline text-primary font-bold text-xs md:text-sm shrink-0">Base L2</span>
+              </div>
               <span className="hidden xs:inline text-zinc-700 text-xs md:text-sm">/</span>
               <span className="text-primary text-xs md:text-sm font-medium truncate">
                 {activeTab === 'registration' ? 'Incorporation Terminal' : 
@@ -372,24 +401,27 @@ const App: React.FC = () => {
                  activeTab === 'revenue' ? 'Yield Engine' : 
                  activeTab === 'blueprint' ? 'Venture Blueprint' :
                  activeTab === 'profile' ? 'Settings' :
+                 activeTab === 'wallet' ? 'Treasury' :
                  activeTab === 'dashboard' ? 'Overview' :
                  step === 'INITIAL' ? 'Inception' : 
                  step === 'MAP' ? 'Strategy Map' : 'Final Report'}
               </span>
             </div>
           </div>
-          {step === 'MAP' && activeTab === 'generation' && (
-            <div className="flex items-center gap-2 md:gap-4">
-               <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-surface border border-border rounded-full">
-                  <Activity className="w-3 h-3 text-emerald-500" />
-                  <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Strength: {mapData?.score}%</span>
-               </div>
-               <button onClick={generateFullStrategy} disabled={loading} className="bg-primary text-background px-3 md:px-4 py-1.5 rounded-full text-[10px] font-medium uppercase tracking-widest hover:bg-white transition-all flex items-center gap-2 shadow-xl shadow-white/5 active:scale-95 transform">
-                 <Logo isGenerating={loading} className="h-4 w-4" hideText />
-                 <span className="hidden xs:inline">{loading ? 'Synthesizing...' : 'Final Synthesis'}</span><span className="xs:hidden">{loading ? '...' : 'Synthesize'}</span>
-               </button>
-            </div>
-          )}
+          <div className="flex items-center gap-2 md:gap-4">
+            {step === 'MAP' && activeTab === 'generation' && (
+              <div className="flex items-center gap-2 md:gap-4">
+                 <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-surface border border-border rounded-full">
+                    <Activity className="w-3 h-3 text-emerald-500" />
+                    <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Strength: {mapData?.score}%</span>
+                 </div>
+                 <button onClick={generateFullStrategy} disabled={loading} className="bg-primary text-background px-3 md:px-4 py-1.5 rounded-full text-[10px] font-medium uppercase tracking-widest hover:bg-white transition-all flex items-center gap-2 shadow-xl shadow-white/5 active:scale-95 transform">
+                   <Logo isGenerating={loading} className="h-4 w-4" hideText />
+                   <span className="hidden xs:inline">{loading ? 'Synthesizing...' : 'Final Synthesis'}</span><span className="xs:hidden">{loading ? '...' : 'Synthesize'}</span>
+                 </button>
+              </div>
+            )}
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto relative z-10 p-4 md:p-8 lg:p-12 print:p-0">
@@ -404,6 +436,20 @@ const App: React.FC = () => {
                 <X className="w-4 h-4" />
               </button>
             </div>
+          )}
+
+          {activeTab === 'dashboard' && (
+            <DashboardView 
+              result={result} 
+              inputs={inputs} 
+              onNewStrategy={handleNewStrategy} 
+              onNavigate={setActiveTab}
+              onLaunchStorefront={() => setViewState('STOREFRONT')}
+            />
+          )}
+
+          {activeTab === 'wallet' && (
+            <WalletView walletAddress={currentUser?.walletAddress} />
           )}
 
           {activeTab === 'generation' && (
@@ -535,7 +581,10 @@ const App: React.FC = () => {
           )}
           
           {activeTab === 'registration' && (
-            <RegistrationView onHandoff={handleRegistrationHandoff} />
+            <RegistrationView 
+              onHandoff={handleRegistrationHandoff} 
+              onLaunchStorefront={handleLaunchStorefront}
+            />
           )}
 
           {activeTab === 'blueprint' && (
@@ -560,6 +609,7 @@ const App: React.FC = () => {
               onSelectHistory={handleHistoryItemClick} 
               onDeleteHistory={handleDeleteHistoryEntry}
               currentInputs={inputs}
+              walletAddress={currentUser?.walletAddress}
             />
           )}
 
@@ -570,21 +620,6 @@ const App: React.FC = () => {
           {activeTab === 'business_hub' && <BusinessHub currentUser={currentUser as UserProfile} />}
           
           {activeTab === 'profile' && <ProfileView profile={currentUser as UserProfile} onUpdate={(p: UserProfile) => {setCurrentUser((prev: UserAccount | null) => prev ? {...prev, ...p} : null); localStorage.setItem('venyro_session', JSON.stringify({...currentUser!, ...p}));}} onSignOut={handleSignOut} />}
-          {activeTab === 'dashboard' && (
-            <div className="max-w-4xl mx-auto text-center space-y-6 pt-12 md:pt-20">
-               <div className="w-16 h-16 md:w-20 md:h-20 bg-surface border border-border rounded-2xl md:rounded-[2.5rem] flex items-center justify-center mx-auto shadow-2xl">
-                 <BrainCircuit className="w-8 h-8 md:w-10 md:h-10 text-zinc-600" />
-               </div>
-               <h2 className="text-xl md:text-3xl font-medium text-primary">Strategic Command</h2>
-               <p className="text-zinc-500 font-light text-xs md:text-base px-4">Select a past venture from history or initiate a new synthesis.</p>
-               <button 
-                onClick={handleNewStrategy}
-                className="px-6 md:px-8 py-3 bg-surface border border-border rounded-xl text-[10px] md:text-xs font-medium uppercase tracking-widest text-zinc-400 hover:text-primary hover:border-zinc-500 transition-all mt-6 md:mt-8"
-               >
-                 Start New Synthesis
-               </button>
-            </div>
-          )}
         </div>
       </main>
     </div>

@@ -14,7 +14,8 @@ import {
   Lock,
   X,
   Trash2,
-  ShieldCheck
+  ShieldCheck,
+  Wallet
 } from 'lucide-react';
 import Logo from './Logo';
 import { UserProfile, HistoryEntry } from '../types';
@@ -46,6 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
+    { id: 'wallet', label: 'Wallet', icon: Wallet },
     { id: 'blueprint', label: 'Blueprint Architect', icon: FileText },
     { id: 'revenue', label: 'Revenue Streams', icon: Layers },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -94,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 <div className="flex items-center gap-3">
                   <ShieldCheck className="w-4 h-4" />
-                  <span className="text-[11px] font-bold uppercase tracking-wider">Registration</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider">On-chain Reg</span>
                 </div>
                 {activeTab !== 'registration' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>}
               </button>
@@ -198,12 +200,15 @@ const Sidebar: React.FC<SidebarProps> = ({
               {profile.avatarUrl ? (
                 <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                profile.avatarInitials
+                profile.walletAddress ? <Wallet className="w-4 h-4 text-primary" /> : profile.avatarInitials
               )}
             </div>
-            <div className="flex flex-col text-left">
-              <span className="text-xs font-medium text-primary truncate max-w-[100px]">{profile.name}</span>
-              <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">{profile.plan}</span>
+            <div className="flex flex-col text-left overflow-hidden">
+              <span className="text-xs font-medium text-primary truncate max-w-[100px]">{profile.walletAddress || profile.name}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-tighter">{profile.plan}</span>
+                {profile.walletAddress && <div className="w-1 h-1 rounded-full bg-emerald-500"></div>}
+              </div>
             </div>
             <Settings className={`w-4 h-4 ml-auto transition-colors ${
               activeTab === 'profile' ? 'text-primary' : 'text-zinc-500 group-hover:text-primary'

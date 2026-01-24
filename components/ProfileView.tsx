@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   User, 
   Mail, 
@@ -233,7 +233,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ profile, onUpdate, onSignOut 
                <div className="space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                      <h3 className="text-xs md:text-sm font-bold text-primary uppercase tracking-widest">Two-Factor Authentication</h3>
+                      <h3 className="text-xs md:sm font-bold text-primary uppercase tracking-widest">Two-Factor Authentication</h3>
                       <p className="text-[10px] md:text-xs text-zinc-500 mt-1 font-light">Secure your synthesis data with a second verification layer.</p>
                     </div>
                     <button 
@@ -386,7 +386,6 @@ const ProfileView: React.FC<ProfileViewProps> = ({ profile, onUpdate, onSignOut 
 
   return (
     <div className="relative min-h-full w-full overflow-x-hidden flex flex-col animate-in fade-in duration-700">
-      {/* Absolute Decorative Wrappers - Strictly Overflow Hidden */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" aria-hidden="true">
         <div className="absolute top-0 left-1/4 w-[min(500px,100vw)] h-[min(500px,100vw)] bg-white/5 rounded-full blur-[120px] opacity-40"></div>
         <div className="absolute bottom-1/4 right-0 w-[min(300px,80vw)] h-[min(300px,80vw)] bg-zinc-400/5 rounded-full blur-[100px] opacity-30"></div>

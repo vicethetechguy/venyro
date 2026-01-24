@@ -35,6 +35,15 @@ export interface TechStackItem {
   tech: string[];
 }
 
+export interface StorefrontData {
+  heroTitle: string;
+  heroSubtitle: string;
+  ctaText: string;
+  welcomeMessage: string;
+  acceptedCurrencies: string[];
+  contractAddress: string;
+}
+
 export interface StrategyResult {
   projections: RevenuePoint[];
   suggestedStreams: SuggestedStream[];
@@ -51,6 +60,7 @@ export interface StrategyResult {
   roadmap: RoadmapStep[];
   summary: string;
   kpis: KPI[];
+  storefront?: StorefrontData;
 }
 
 export interface PillarData {
@@ -89,6 +99,7 @@ export interface UserProfile {
   avatarInitials: string;
   bio: string;
   avatarUrl?: string;
+  walletAddress?: string;
 }
 
 export interface UserAccount extends UserProfile {
@@ -133,7 +144,6 @@ export interface RegistrationData {
   readyForWhitepaper: boolean;
 }
 
-// Added missing BusinessListing interface
 export interface BusinessListing {
   id: string;
   name: string;
@@ -146,7 +156,6 @@ export interface BusinessListing {
   contactPhone?: string;
 }
 
-// Added missing TechTeamListing interface
 export interface TechTeamListing {
   id: string;
   name: string;
@@ -160,5 +169,20 @@ export interface TechTeamListing {
   contactPhone?: string;
 }
 
-export type AppViewState = 'LANDING' | 'AUTH' | 'DASHBOARD' | 'FRAMEWORK' | 'VENTURES' | 'STUDIO' | 'PRICING' | 'BUSINESS_HUB' | 'REGISTRATION';
-export type AuthMode = 'SIGN_IN' | 'SIGN_UP';
+export type AppViewState = 
+  | 'LANDING' 
+  | 'AUTH' 
+  | 'DASHBOARD' 
+  | 'FRAMEWORK' 
+  | 'VENTURES' 
+  | 'STUDIO' 
+  | 'PRICING' 
+  | 'BUSINESS_HUB' 
+  | 'REGISTRATION' 
+  | 'STOREFRONT'
+  | 'SYNTHESIS_ENGINE'
+  | 'BASE_PROTOCOL'
+  | 'ABOUT_LABS'
+  | 'CONTACT';
+
+export type AuthMode = 'SIGN_IN' | 'SIGN_UP' | 'WALLET';

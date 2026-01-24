@@ -31,8 +31,6 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { action, payload, history, context } = req.body;
-  
-  // Strictly use process.env.API_KEY for initialization as per guidelines.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   try {
@@ -55,25 +53,29 @@ export default async function handler(req: any, res: any) {
   } catch (error: any) {
     console.error(`Gemini API Error [${action}]:`, error);
     const message = error.message?.toLowerCase().includes('overloaded') 
-      ? 'The Strategic Engine is currently under high load. Please try again in a moment.' 
-      : (error.message || 'The Synthesis Engine encountered a technical error.');
+      ? 'The Strategic Engine is currently under high load.' 
+      : (error.message || 'The Synthesis Engine encountered an error.');
     return res.status(500).json({ error: message });
   }
 }
 
 async function handleRegistrationStep(ai: any, step: number, input: any, history: any[], res: any) {
-  const systemInstruction = `You are a professional business incorporation advisor and UX guide for Nigerian businesses. 
-  Your role is to guide users step-by-step through business registration (CAC).
-  - Reduce confusion. Ask only one clear question at a time.
-  - Adapt guidance based on user responses.
-  - Tone: Human, encouraging, progress-driven, professional-gamified "founder energy".
-  - Behavior: Provide micro-wins and smart assist warnings if a name or description might be rejected.
+  const systemInstruction = `You are a professional On-chain Business Architect and Base Protocol Guide. 
+  Your role is to guide users step-by-step through registering their business ON-CHAIN via the Base blockchain.
+  - Concept: Users are deploying a business as a smart contract protocol instead of a traditional legal entity (CAC).
+  - Feature: Once deployed, they get a "Strategic Order Link" to collect payments in local currencies (automatically converted/bridged).
+  - Behavior: Ask one clear question at a time. Guide them through:
+    1. Base Protocol Orientation.
+    2. Smart Contract Metadata (Business Type/Logic).
+    3. On-chain Handle (ENS/Naming).
+    4. Cap-Table Architecture (Owner wallet/Shareholders).
+    5. Payment Logic (Setting up the order link for local currencies).
   - Current Step: Stage ${step}.
-  - Output: Return a JSON object with 'text' (the advisor's response) and 'data' (any refined data or extracted fields).`;
+  - Output: JSON object with 'text' (advisor response) and 'data' (extracted contract fields). At step 8 or 9, also provide 'storefront' data.`;
 
   const response = await withRetry(() => ai.models.generateContent({
     model: 'gemini-3-flash-preview',
-    contents: [...history, { role: 'user', parts: [{ text: `Process Step ${step} with this user input: ${JSON.stringify(input)}` }] }],
+    contents: [...history, { role: 'user', parts: [{ text: `Process On-chain Step ${step} with input: ${JSON.stringify(input)}` }] }],
     config: {
       thinkingConfig: { thinkingBudget: 0 },
       systemInstruction,
@@ -86,7 +88,6 @@ async function handleRegistrationStep(ai: any, step: number, input: any, history
 
 async function handleInferStrategy(ai: any, concept: string, res: any) {
   const prompt = `Act as a venture architect. Infer a 6-pillar strategy map for: "${concept}". Return JSON with: score (0-100), suggestedName, and pillars (vision, valueProp, market, tech, revenue, gtm). Each pillar needs: draft, confidence, assumptions[], nextAction.`;
-
   const pillarSchema = {
     type: Type.OBJECT,
     properties: {
@@ -97,7 +98,6 @@ async function handleInferStrategy(ai: any, concept: string, res: any) {
     },
     required: ["draft", "confidence", "assumptions", "nextAction"]
   };
-
   const response = await withRetry(() => ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
@@ -126,13 +126,11 @@ async function handleInferStrategy(ai: any, concept: string, res: any) {
       }
     }
   }));
-
   return res.status(200).json(JSON.parse(response.text.trim()));
 }
 
 async function handleGenerateStrategy(ai: any, inputs: any, context: string | undefined, res: any) {
-  let prompt = `Synthesize a full strategy for ${inputs.productName}. Concept: ${inputs.concept}. Previous context: ${context || 'N/A'}. Return structured JSON.`;
-
+  let prompt = `Synthesize a full strategy and storefront configuration for ${inputs.productName}. Concept: ${inputs.concept}. Previous context: ${context || 'N/A'}. Include Base blockchain implementation details and StorefrontData (heroTitle, heroSubtitle, ctaText, welcomeMessage, acceptedCurrencies[], contractAddress).`;
   const response = await withRetry(() => ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
@@ -153,56 +151,29 @@ async function handleGenerateStrategy(ai: any, inputs: any, context: string | un
           riskMatrix: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { level: { type: Type.STRING }, title: { type: Type.STRING }, description: { type: Type.STRING } }, required: ["level", "title", "description"] } },
           roadmap: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { timeline: { type: Type.STRING }, title: { type: Type.STRING }, description: { type: Type.STRING } }, required: ["timeline", "title", "description"] } },
           summary: { type: Type.STRING },
-          kpis: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { label: { type: Type.STRING }, value: { type: Type.STRING }, trend: { type: Type.STRING }, description: { type: Type.STRING } }, required: ["label", "value", "trend", "description"] } }
+          kpis: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { label: { type: Type.STRING }, value: { type: Type.STRING }, trend: { type: Type.STRING }, description: { type: Type.STRING } }, required: ["label", "value", "trend", "description"] } },
+          storefront: {
+            type: Type.OBJECT,
+            properties: {
+              heroTitle: { type: Type.STRING },
+              heroSubtitle: { type: Type.STRING },
+              ctaText: { type: Type.STRING },
+              welcomeMessage: { type: Type.STRING },
+              acceptedCurrencies: { type: Type.ARRAY, items: { type: Type.STRING } },
+              contractAddress: { type: Type.STRING }
+            },
+            required: ["heroTitle", "heroSubtitle", "ctaText", "welcomeMessage", "acceptedCurrencies", "contractAddress"]
+          }
         },
-        required: ["projections", "suggestedStreams", "checklist", "viabilityScore", "breakEvenMonth", "breakEvenDescription", "strategicPillars", "technologies", "riskMatrix", "roadmap", "summary", "kpis"]
+        required: ["projections", "suggestedStreams", "checklist", "viabilityScore", "breakEvenMonth", "breakEvenDescription", "strategicPillars", "technologies", "riskMatrix", "roadmap", "summary", "kpis", "storefront"]
       }
     }
   }));
-
   return res.status(200).json(JSON.parse(response.text.trim()));
 }
 
 async function handleGenerateBlueprint(ai: any, inputs: any, context: string | undefined, res: any) {
-  let prompt = `Act as an expert whitepaper writer and business analyst. Generate a professional, detailed, and investor-ready whitepaper for: "${inputs.productName}".
-  
-  CORE CONCEPT: ${inputs.concept}
-  STRATEGIC CONTEXT: ${context || 'Analyze from scratch based on name and concept.'}
-  
-  TASK:
-  Generate a comprehensive whitepaper tailored to the project type (Web3, SaaS, Hardware, etc.). The document should be institutional-grade, persuasive, and technically deep.
-  
-  FORMATTING RULES:
-  1. Use Markdown for sections.
-  2. Each section MUST be detailed and written in clear, structured paragraphs (no large blocks).
-  3. Use bullet points for lists of features, metrics, or technical steps.
-  4. Include markers like [Insert Diagram: Technical Flow] or [Insert Chart: Token Distribution] where relevant.
-  5. The tone must be professional, authoritative, and suitable for venture capital review.
-
-  REQUIRED STRUCTURE (20 SECTIONS):
-  1. Executive Summary
-  2. Problem Statement
-  3. Solution Overview
-  4. Platform/Business Architecture
-  5. Product/Token Mechanics
-  6. Validation or Traction Mechanism
-  7. Investment/Monetization Model
-  8. Tokenomics / Financial Model
-  9. Governance / Operational Structure
-  10. Roadmap
-  11. Security & Compliance
-  12. Market Analysis
-  13. Community & Incentives
-  14. Legal Considerations
-  15. Technical Implementation
-  16. Case Studies / Hypotheticals
-  17. Revenue Model Detail
-  18. Team & Advisors
-  19. Risk & Challenges
-  20. Appendices & Glossary
-
-  Return as JSON with "title" and "sections" array (each with "title" and "content" fields).`;
-
+  let prompt = `Act as an expert whitepaper writer. Generate a 20-section on-chain venture blueprint for: "${inputs.productName}" on Base Blockchain.`;
   const response = await withRetry(() => ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
@@ -219,7 +190,6 @@ async function handleGenerateBlueprint(ai: any, inputs: any, context: string | u
       }
     }
   }));
-
   return res.status(200).json(JSON.parse(response.text.trim()));
 }
 
@@ -240,7 +210,6 @@ async function handleRefineBlueprint(ai: any, blueprint: any, history: any[], re
       }
     }
   }));
-
   return res.status(200).json(JSON.parse(response.text.trim()));
 }
 
@@ -250,7 +219,7 @@ async function handleChatWithStrategy(ai: any, payload: any, history: any[], res
     contents: history,
     config: {
       thinkingConfig: { thinkingBudget: 0 },
-      systemInstruction: "Venyro Advisor: Professional, technical, concise. Use Markdown."
+      systemInstruction: "Venyro On-chain Advisor: Professional, technical. Focus on Base ecosystem."
     }
   }));
   return res.status(200).json({ text: response.text });
