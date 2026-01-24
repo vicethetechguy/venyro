@@ -5,9 +5,6 @@ export const config = {
   maxDuration: 60,
 };
 
-/**
- * Helper to handle transient API errors with exponential backoff.
- */
 async function withRetry(fn: () => Promise<any>, maxRetries = 3, initialDelay = 1000) {
   let lastError;
   for (let i = 0; i < maxRetries; i++) {
@@ -42,6 +39,8 @@ export default async function handler(req: any, res: any) {
 
   try {
     switch (action) {
+      case 'registrationStep':
+        return await handleRegistrationStep(ai, payload.step, payload.input, history, res);
       case 'inferStrategy':
         return await handleInferStrategy(ai, payload, res);
       case 'generateStrategy':
@@ -62,6 +61,29 @@ export default async function handler(req: any, res: any) {
       : (error.message || 'The Synthesis Engine encountered a technical error.');
     return res.status(500).json({ error: message });
   }
+}
+
+async function handleRegistrationStep(ai: any, step: number, input: any, history: any[], res: any) {
+  const systemInstruction = `You are a professional business incorporation advisor and UX guide for Nigerian businesses. 
+  Your role is to guide users step-by-step through business registration (CAC).
+  - Reduce confusion. Ask only one clear question at a time.
+  - Adapt guidance based on user responses.
+  - Tone: Human, encouraging, progress-driven, professional-gamified "founder energy".
+  - Behavior: Provide micro-wins and smart assist warnings if a name or description might be rejected.
+  - Current Step: Stage ${step}.
+  - Output: Return a JSON object with 'text' (the advisor's response) and 'data' (any refined data or extracted fields).`;
+
+  const response = await withRetry(() => ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: [...history, { role: 'user', parts: [{ text: `Process Step ${step} with this user input: ${JSON.stringify(input)}` }] }],
+    config: {
+      thinkingConfig: { thinkingBudget: 0 },
+      systemInstruction,
+      responseMimeType: "application/json"
+    }
+  }));
+
+  return res.status(200).json(JSON.parse(response.text.trim()));
 }
 
 async function handleInferStrategy(ai: any, concept: string, res: any) {
@@ -160,28 +182,27 @@ async function handleGenerateBlueprint(ai: any, inputs: any, context: string | u
   5. The tone must be professional, authoritative, and suitable for venture capital review.
 
   REQUIRED STRUCTURE (20 SECTIONS):
-  1. Executive Summary: Concise overview of the venture and its impact.
-  2. Problem Statement: Deep dive into the market pain points.
-  3. Solution Overview: How the product uniquely addresses the problem.
-  4. Platform/Business Architecture: High-level system or operational design.
-  5. Product/Token Mechanics: Technical inner workings (tailored to project type).
-  6. Validation or Traction Mechanism: Proof of concept or market fit strategy.
-  7. Investment/Monetization Model: How value is captured.
-  8. Tokenomics / Financial Model: Detailed distribution or revenue strategy.
-  9. Governance / Operational Structure: Decision-making and legal entity design.
-  10. Roadmap: Milestones for Short, Mid, and Long term.
-  11. Security & Compliance: Risk mitigation and regulatory adherence.
-  12. Market Analysis: TAM/SAM/SOM and competitive landscape.
-  13. Community & Incentives: User acquisition and ecosystem growth.
-  14. Legal Considerations: Framework for operations and intellectual property.
-  15. Technical Implementation: Technology stack and data architecture.
-  16. Case Studies / Hypotheticals: Practical application of the solution.
-  17. Revenue Model Detail: Pricing tiers and lifetime value projections.
-  18. Team & Advisors: Strategic human capital requirements.
-  19. Risk & Challenges: Technical, market, and execution risks.
-  20. Appendices & Glossary: Definition of terms and technical references.
+  1. Executive Summary
+  2. Problem Statement
+  3. Solution Overview
+  4. Platform/Business Architecture
+  5. Product/Token Mechanics
+  6. Validation or Traction Mechanism
+  7. Investment/Monetization Model
+  8. Tokenomics / Financial Model
+  9. Governance / Operational Structure
+  10. Roadmap
+  11. Security & Compliance
+  12. Market Analysis
+  13. Community & Incentives
+  14. Legal Considerations
+  15. Technical Implementation
+  16. Case Studies / Hypotheticals
+  17. Revenue Model Detail
+  18. Team & Advisors
+  19. Risk & Challenges
+  20. Appendices & Glossary
 
-  If information provided is insufficient, infer the most logical and professional strategy based on industry best practices.
   Return as JSON with "title" and "sections" array (each with "title" and "content" fields).`;
 
   const response = await withRetry(() => ai.models.generateContent({

@@ -119,6 +119,21 @@ export interface HistoryEntry extends StrategyResult {
   id: string;
 }
 
+export interface RegistrationData {
+  businessType: 'Business Name' | 'Private Limited Company' | 'Other';
+  description: string;
+  names: string[];
+  ownerDetails: {
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+  }[];
+  complianceConfirmed: boolean;
+  readyForWhitepaper: boolean;
+}
+
+// Added missing BusinessListing interface
 export interface BusinessListing {
   id: string;
   name: string;
@@ -126,12 +141,12 @@ export interface BusinessListing {
   price: string;
   revenue: string;
   category: string;
-  logo?: string;
   ownerId: string;
-  contactEmail?: string;
+  contactEmail: string;
   contactPhone?: string;
 }
 
+// Added missing TechTeamListing interface
 export interface TechTeamListing {
   id: string;
   name: string;
@@ -140,11 +155,10 @@ export interface TechTeamListing {
   hourlyRate: string;
   teamSize: number;
   rating: number;
-  logo?: string;
   ownerId: string;
-  contactEmail?: string;
+  contactEmail: string;
   contactPhone?: string;
 }
 
-export type AppViewState = 'LANDING' | 'AUTH' | 'DASHBOARD' | 'FRAMEWORK' | 'VENTURES' | 'STUDIO' | 'PRICING' | 'BUSINESS_HUB';
+export type AppViewState = 'LANDING' | 'AUTH' | 'DASHBOARD' | 'FRAMEWORK' | 'VENTURES' | 'STUDIO' | 'PRICING' | 'BUSINESS_HUB' | 'REGISTRATION';
 export type AuthMode = 'SIGN_IN' | 'SIGN_UP';

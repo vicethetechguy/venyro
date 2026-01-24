@@ -21,7 +21,8 @@ import {
   ImageIcon,
   Palette,
   X,
-  Menu
+  Menu,
+  ShieldCheck
 } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import ResultsPanel from './components/ResultsPanel';
@@ -38,6 +39,7 @@ import StrategyMap from './components/StrategyMap';
 import BusinessHub from './components/BusinessHub';
 import AnalyticsView from './components/AnalyticsView';
 import RevenueStreamsView from './components/RevenueStreamsView';
+import RegistrationView from './components/RegistrationView';
 import Logo from './components/Logo';
 import { 
   StrategyInputs, 
@@ -234,6 +236,16 @@ const App: React.FC = () => {
     }
   };
 
+  const handleRegistrationHandoff = (name: string, concept: string) => {
+    setActiveTab('generation');
+    setInputs(prev => ({
+      ...prev,
+      productName: name,
+      concept: concept
+    }));
+    startInference();
+  };
+
   const handleNewStrategy = () => {
     setActiveTab('generation');
     setStep('INITIAL');
@@ -340,7 +352,8 @@ const App: React.FC = () => {
               <span className="text-zinc-500 text-xs md:text-sm cursor-pointer hover:text-primary transition-colors shrink-0" onClick={() => setViewState('LANDING')}>Venyro Labs</span>
               <span className="text-zinc-700 text-xs md:text-sm">/</span>
               <span className="text-primary text-xs md:text-sm font-medium truncate">
-                {activeTab === 'business_hub' ? 'Business Hub' : 
+                {activeTab === 'registration' ? 'Incorporation Terminal' : 
+                 activeTab === 'business_hub' ? 'Business Hub' : 
                  activeTab === 'analytics' ? 'Technical Analytics' : 
                  activeTab === 'revenue' ? 'Yield Engine' : 
                  activeTab === 'blueprint' ? 'Venture Blueprint' :
@@ -504,6 +517,10 @@ const App: React.FC = () => {
             </div>
           )}
           
+          {activeTab === 'registration' && (
+            <RegistrationView onHandoff={handleRegistrationHandoff} />
+          )}
+
           {activeTab === 'blueprint' && (
             <BlueprintView 
               blueprint={blueprintResult} 

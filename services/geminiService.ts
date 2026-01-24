@@ -54,6 +54,10 @@ export class GeminiService {
     return this.callProxy('refineBlueprint', blueprint, fullHistory, context);
   }
 
+  async handleRegistrationStep(step: number, input: any, history: any[]): Promise<any> {
+    return this.callProxy('registrationStep', { step, input }, history);
+  }
+
   async chatWithStrategy(strategy: StrategyResult, inputs: StrategyInputs, question: string, history: any[], previousContext?: string): Promise<string> {
     let lastContext = previousContext || strategy.summary || inputs.concept;
     const expandedQuestion = this.expandCommand(question, lastContext);
