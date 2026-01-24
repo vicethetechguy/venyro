@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   ShieldCheck, 
@@ -103,8 +102,9 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
         setRegistrationData((prev: any) => ({ ...prev, ...response.data }));
       }
 
+      // Logic to advance stages based on AI guidance or keywords
       if (response.proceed || response.text.toLowerCase().includes('next step') || response.text.toLowerCase().includes('let\'s continue')) {
-        setStage((prev: number) => prev + 1);
+        setStage((prev: number) => Math.min(prev + 1, 9));
       }
     } catch (err) {
       console.error(err);
@@ -128,7 +128,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
       setMessages((prev: Message[]) => [...prev, { role: 'advisor', text: response.text, stage }]);
       if (response.data) setRegistrationData((prev: any) => ({ ...prev, ...response.data }));
       if (response.proceed || response.text.toLowerCase().includes('next step') || response.text.toLowerCase().includes('let\'s continue')) {
-        setStage((prev: number) => prev + 1);
+        setStage((prev: number) => Math.min(prev + 1, 9));
       }
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -156,7 +156,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
           <div className="p-3 bg-primary text-background rounded-2xl shadow-xl">
             <ShieldCheck className="w-5 h-5" />
           </div>
-          <div>
+          <div className="hidden xs:block">
             <h1 className="text-xl font-bold text-primary tracking-tight">Incorporation Terminal</h1>
             <p className="text-[10px] uppercase font-bold text-zinc-500 tracking-[0.2em] flex items-center gap-2">
               Mission {stage} of 9 <ChevronRight className="w-3 h-3" /> {STAGES[stage-1]?.title || 'Protocol'}
@@ -189,7 +189,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
 
           {messages.map((m, idx) => (
             <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-500`}>
-              <div className={`max-w-[85%] md:max-w-[70%] space-y-3`}>
+              <div className={`max-w-[90%] md:max-w-[70%] space-y-3`}>
                 <div className={`px-6 py-4 rounded-[1.8rem] shadow-2xl relative ${
                   m.role === 'user' 
                   ? 'bg-primary text-background font-bold text-xs' 

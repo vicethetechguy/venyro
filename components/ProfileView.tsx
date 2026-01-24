@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { 
   User, 
@@ -123,7 +122,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ profile, onUpdate, onSignOut 
                     />
                   ) : (
                     <div className="flex items-center gap-4 px-5 py-3.5 bg-zinc-900/30 border border-transparent rounded-2xl text-sm text-zinc-300 group transition-colors hover:bg-zinc-900/50">
-                      <User className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" /> {profile.name}
+                      <User className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors shrink-0" /> <span className="truncate">{profile.name}</span>
                     </div>
                   )}
                 </div>
@@ -157,7 +156,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ profile, onUpdate, onSignOut 
                     />
                   ) : (
                     <div className="flex items-center gap-4 px-5 py-3.5 bg-zinc-900/30 border border-transparent rounded-2xl text-sm text-zinc-300 group transition-colors hover:bg-zinc-900/50">
-                      <ShieldCheck className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" /> {profile.role}
+                      <ShieldCheck className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors shrink-0" /> <span className="truncate">{profile.role}</span>
                     </div>
                   )}
                 </div>

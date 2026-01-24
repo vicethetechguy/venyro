@@ -8,7 +8,12 @@ import {
   FileText,
   Target,
   ChevronRight,
-  Menu
+  ShieldCheck,
+  Store,
+  Users,
+  Briefcase,
+  Layers,
+  Globe
 } from 'lucide-react';
 import Logo from './Logo';
 import { AppViewState } from '../types';
@@ -116,28 +121,81 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
               Explore Framework
             </button>
           </div>
+        </section>
 
-          <div className="mt-32 md:mt-56 grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-20 w-full max-w-5xl opacity-40 hover:opacity-100 transition-all duration-1000">
-            <div className="flex flex-col items-center gap-2 md:gap-4">
-              <div className="text-2xl md:text-4xl font-light text-primary tracking-tighter">0.4s</div>
-              <div className="text-[9px] md:text-[11px] font-medium text-zinc-500 tracking-[0.4em] uppercase">Inference</div>
+        {/* ECOSYSTEM SHOWCASE SECTION (Incorporation + Hub) */}
+        <section className="px-6 md:px-12 py-32 md:py-56 border-t border-border/40 relative">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-32 items-center">
+            <div className="space-y-12">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/5 text-[9px] font-bold text-primary uppercase tracking-[0.2em]">
+                  Ecosystem Protocol
+                </div>
+                <h2 className="text-4xl md:text-6xl font-medium text-primary tracking-tight">The Full Venture Lifecycle.</h2>
+                <p className="text-lg text-zinc-500 font-light leading-relaxed">Venyro doesn't just stop at strategy. We provide the infrastructure to legalize, build, and trade your high-fidelity assets.</p>
+              </div>
+
+              <div className="space-y-10">
+                <div className="flex gap-6 group cursor-default">
+                  <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-border flex items-center justify-center text-zinc-500 group-hover:text-primary transition-all duration-500 shrink-0">
+                    <ShieldCheck className="w-7 h-7" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-medium text-primary">Incorporation Terminal</h3>
+                    <p className="text-sm text-zinc-500 leading-relaxed font-light">Fast-track your Nigerian CAC business registration with an AI-advisor. Handle entity selection, naming availability, and director filings in a single terminal.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-6 group cursor-default">
+                  <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-border flex items-center justify-center text-zinc-500 group-hover:text-primary transition-all duration-500 shrink-0">
+                    <Store className="w-7 h-7" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-medium text-primary">Strategic Marketplace</h3>
+                    <p className="text-sm text-zinc-500 leading-relaxed font-light">List your synthesized ventures for acquisition or browse pre-validated businesses. Hire verified elite tech teams to execute your blueprint with surgical precision.</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex flex-col items-center gap-2 md:gap-4">
-              <div className="text-2xl md:text-4xl font-light text-primary tracking-tighter">140+</div>
-              <div className="text-[9px] md:text-[11px] font-medium text-zinc-500 tracking-[0.4em] uppercase">Industries</div>
-            </div>
-            <div className="flex flex-col items-center gap-2 md:gap-4">
-              <div className="text-2xl md:text-4xl font-light text-primary tracking-tighter">5k+</div>
-              <div className="text-[9px] md:text-[11px] font-medium text-zinc-500 tracking-[0.4em] uppercase">Ventures</div>
-            </div>
-            <div className="flex flex-col items-center gap-2 md:gap-4">
-              <div className="text-2xl md:text-4xl font-light text-primary tracking-tighter">100%</div>
-              <div className="text-[9px] md:text-[11px] font-medium text-zinc-500 tracking-[0.4em] uppercase">Alignment</div>
+
+            <div className="relative">
+              <div className="aspect-square rounded-[3rem] bg-gradient-to-tr from-zinc-900 to-zinc-950 border border-border p-8 md:p-12 overflow-hidden shadow-2xl relative group">
+                <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+                <div className="relative z-10 flex flex-col justify-between h-full">
+                  <div className="p-6 rounded-[2rem] bg-surface/80 border border-white/5 backdrop-blur-xl shadow-2xl animate-in slide-in-from-top-4 duration-1000">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Protocol Verified</span>
+                      </div>
+                      <span className="text-[9px] font-mono text-zinc-600">ID: VN-9042</span>
+                    </div>
+                    <p className="text-sm font-medium text-primary">Venture Registration Status: 92% Complete</p>
+                    <div className="h-1.5 w-full bg-zinc-800 rounded-full mt-4 overflow-hidden">
+                      <div className="h-full bg-emerald-500 w-[92%]"></div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-[2rem] bg-primary text-background shadow-2xl self-end max-w-[80%] animate-in slide-in-from-bottom-4 duration-1000 delay-300">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Store className="w-4 h-4" />
+                      <span className="text-[9px] font-bold uppercase tracking-widest">New Listing</span>
+                    </div>
+                    <p className="text-base font-bold tracking-tight mb-1">EcoSaaS Protocol</p>
+                    <p className="text-[10px] font-medium opacity-70 uppercase tracking-wider">Current Yield: $8.2k/mo</p>
+                  </div>
+                </div>
+              </div>
+              {/* Decorative elements */}
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+              <div className="absolute -top-10 -right-10 w-48 h-48 bg-emerald-500/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }}></div>
             </div>
           </div>
         </section>
 
-        {/* Feature Preview Section */}
+        {/* Feature Grid Section */}
         <section id="features" className="px-6 md:px-8 py-32 md:py-56 bg-zinc-950/40 border-t border-border/40 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24 lg:gap-36">
             <div className="space-y-6 md:space-y-10 group">
@@ -219,5 +277,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
     </div>
   );
 };
+
+// Internal CheckCircle2 definition for visual completeness if not imported
+const CheckCircle2 = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+    <path d="m9 12 2 2 4-4"/>
+  </svg>
+);
 
 export default LandingPage;
