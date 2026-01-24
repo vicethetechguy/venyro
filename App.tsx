@@ -141,7 +141,12 @@ const App: React.FC = () => {
       setLastAiResponse(JSON.stringify(inferred));
       setStep('MAP');
     } catch (err: any) {
-      setError(err.message || "Synthesis engine failed.");
+      const msg = err.message || "";
+      if (msg.includes("API key expired") || msg.includes("INVALID_ARGUMENT")) {
+        setError("Strategic Engine Connection Expired. Please refresh your session or contact administration.");
+      } else {
+        setError(err.message || "Synthesis engine failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -183,7 +188,12 @@ const App: React.FC = () => {
         }
       }
     } catch (err: any) {
-      setError(err.message || "Full synthesis failed.");
+      const msg = err.message || "";
+      if (msg.includes("API key expired") || msg.includes("INVALID_ARGUMENT")) {
+        setError("Synthesis Authorization Expired. A system refresh is required.");
+      } else {
+        setError(err.message || "Full synthesis failed.");
+      }
     } finally {
       setLoading(false);
     }
@@ -229,7 +239,12 @@ const App: React.FC = () => {
       setBlueprintResult(res);
       setLastAiResponse(JSON.stringify(res));
     } catch (err: any) {
-      setError(err.message || "Blueprint drafting failed.");
+      const msg = err.message || "";
+      if (msg.includes("API key expired") || msg.includes("INVALID_ARGUMENT")) {
+        setError("Blueprint Architect Authorization Expired.");
+      } else {
+        setError(err.message || "Blueprint drafting failed.");
+      }
     } finally {
       setLoading(false);
     }
@@ -379,9 +394,15 @@ const App: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto relative z-10 p-4 md:p-8 lg:p-12 print:p-0">
           {error && (
-            <div className="max-w-md mx-auto mb-8 p-4 bg-red-900/10 border border-red-900/20 rounded-2xl text-red-400 text-xs flex items-center gap-3 animate-in slide-in-from-top-2 print:hidden">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {error}
+            <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-900/10 border border-red-900/20 rounded-2xl text-red-400 text-xs flex items-start gap-3 animate-in slide-in-from-top-2 print:hidden overflow-hidden shadow-2xl backdrop-blur-xl">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0 break-words">
+                <p className="font-bold uppercase tracking-widest mb-1">System Error</p>
+                <p className="font-light opacity-90">{error}</p>
+              </div>
+              <button onClick={() => setError(null)} className="p-1 hover:bg-red-400/10 rounded-lg transition-colors">
+                <X className="w-4 h-4" />
+              </button>
             </div>
           )}
 

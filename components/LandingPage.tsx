@@ -103,9 +103,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
             Venyro Tactical Labs v2.4.0
           </div>
           
-          <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-primary tracking-tighter leading-[1.1] md:leading-[0.9] mb-8 md:mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 px-2">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-primary tracking-tighter leading-[1.1] md:leading-[0.9] mb-8 md:mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 px-2 max-w-full">
             Venture architecture,<br />
-            <span className="text-zinc-600">at machine speed.</span>
+            <span className="text-zinc-600 whitespace-nowrap">at machine speed.</span>
           </h1>
           
           <p className="text-sm sm:text-lg lg:text-xl text-zinc-500 max-w-2xl mx-auto mb-10 md:mb-16 leading-relaxed font-light animate-in fade-in slide-in-from-bottom-6 duration-1000 px-6 sm:px-4">
@@ -127,7 +127,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
 
         {/* ECOSYSTEM SHOWCASE SECTION (Incorporation + Hub) */}
         <section className="px-4 sm:px-12 py-24 md:py-56 border-t border-border/40 relative">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-32 items-center">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-32 items-center overflow-hidden">
             <div className="space-y-10 md:space-y-12">
               <div className="space-y-4 md:space-y-6">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/5 text-[8px] md:text-[9px] font-bold text-primary uppercase tracking-[0.2em] w-fit">
@@ -237,7 +237,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onNav
             <p className="text-sm sm:text-lg md:text-2xl text-zinc-500 font-light leading-relaxed max-w-2xl mx-auto px-6">Join the new standard of venture creation. Synthesize your vision today.</p>
             <button 
               onClick={onGetStarted}
-              className="w-full sm:w-auto px-10 md:px-20 py-5 md:py-7 bg-primary text-background rounded-2xl md:rounded-[3rem] font-bold text-sm md:text-lg uppercase tracking-widest hover:bg-white transition-all shadow-2xl active:scale-95 transform"
+              className="w-full sm:w-auto px-10 md:px-24 py-5 md:py-7 bg-primary text-background rounded-2xl md:rounded-[3rem] font-bold text-sm md:text-lg uppercase tracking-widest hover:bg-white transition-all shadow-2xl active:scale-95 transform"
             >
               Launch Synthesis Engine
             </button>

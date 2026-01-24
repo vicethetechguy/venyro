@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Venyro - Strategy AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,6 +49,15 @@
         }
     </script>
     <style>
+        * { box-sizing: border-box; }
+        html, body { 
+            overflow-x: hidden; 
+            width: 100%;
+            position: relative;
+            margin: 0;
+            padding: 0;
+        }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
@@ -116,42 +124,26 @@
             transform: translateX(-50%);
         }
 
-        /* Custom Prose Styling for Strategy Reports */
         .prose-custom h1, .prose-custom h2, .prose-custom h3 { color: #fafafa; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; font-family: 'Montserrat', sans-serif; letter-spacing: -0.01em; }
         .prose-custom h1 { font-size: 1.25rem; }
         .prose-custom h2 { font-size: 1.125rem; }
         .prose-custom h3 { font-size: 0.875rem; color: #d4d4d8; text-transform: uppercase; letter-spacing: 0.15em; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; }
-        
         .prose-custom p { margin-bottom: 1rem; color: #a1a1aa; line-height: 1.8; font-size: 0.9375rem; font-weight: 400; }
         .prose-custom ul, .prose-custom ol { margin-bottom: 1.25rem; padding-left: 0.5rem; }
         .prose-custom li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; color: #e4e4e7; font-size: 0.875rem; line-height: 1.6; font-weight: 400; }
         .prose-custom ul li::before { content: '•'; position: absolute; left: 0.25rem; color: #52525b; font-weight: 700; }
-        .prose-custom ol { counter-reset: item; }
-        .prose-custom ol li::before { counter-increment: item; content: counter(item) "."; position: absolute; left: 0; color: #71717a; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 500; top: 0.125rem; }
-        
-        .prose-custom strong { color: #ffffff; font-weight: 600; }
-        
         .prose-custom table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; background: rgba(0,0,0,0.2); border-radius: 0.75rem; overflow: hidden; border: 1px solid #27272a; }
         .prose-custom th { background: #18181b; color: #fafafa; text-align: left; padding: 0.75rem 1rem; font-weight: 600; border-bottom: 1px solid #27272a; }
         .prose-custom td { padding: 0.75rem 1rem; border-bottom: 1px solid #1c1c1f; color: #a1a1aa; font-weight: 400; }
-        .prose-custom tr:last-child td { border-bottom: none; }
         
-        .prose-custom code { font-family: 'JetBrains Mono', monospace; background: #27272a; color: #e4e4e7; padding: 0.125rem 0.375rem; border-radius: 0.375rem; font-size: 0.8em; }
-        .prose-custom pre { background: #09090b; padding: 1rem; border-radius: 0.75rem; border: 1px solid #27272a; margin: 1rem 0; overflow-x: auto; }
-        .prose-custom pre code { background: transparent; padding: 0; font-size: 0.85rem; }
-        .prose-custom blockquote { border-left: 3px solid #3f3f46; padding-left: 1.25rem; font-style: italic; color: #71717a; margin: 1.5rem 0; font-weight: 300; }
-
         @media print {
             body { background: white !important; color: black !important; }
             #root { height: auto !important; overflow: visible !important; }
             aside { display: none !important; }
             .print\:hidden { display: none !important; }
             .prose-custom p, .prose-custom li, .prose-custom td { color: #1f2937 !important; }
-            .prose-custom h1, .prose-custom h2, .prose-custom h3 { color: black !important; border-color: #e5e7eb !important; }
             .bg-grid-pattern, .bg-plus-grid { display: none !important; }
-            .max-w-6xl { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
             main { background: white !important; }
-            .lg\:p-12 { padding: 0 !important; }
         }
     </style>
 <script type="importmap">
@@ -171,8 +163,8 @@
 }
 </script>
 </head>
-<body class="bg-background text-secondary font-sans antialiased selection:bg-white/20 selection:text-white min-h-screen h-full overflow-x-hidden">
-    <div id="root" class="h-full min-h-screen"></div>
+<body class="bg-background text-secondary font-sans antialiased selection:bg-white/20 selection:text-white min-h-screen">
+    <div id="root" class="h-full min-h-screen w-full overflow-x-hidden"></div>
     <script type="module" src="./index.tsx"></script>
 </body>
 </html>
