@@ -701,7 +701,7 @@ const App: React.FC = () => {
           )}
 
           {activeTab === 'revenue' && (
-            <RevenueStreamsView result={result} loading={loading} />
+            <RevenueStreamsView result={result} loading={loading} onNavigate={setActiveTab} />
           )}
 
           {activeTab === 'revenue_streams' && (

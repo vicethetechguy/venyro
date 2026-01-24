@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Layers, 
   TrendingUp, 
@@ -12,13 +12,16 @@ import {
   ArrowRight,
   PlusCircle,
   Loader2,
-  Activity
+  Activity,
+  CheckCircle2,
+  Briefcase
 } from 'lucide-react';
 import { StrategyResult } from '../types';
 
 interface RevenueStreamsViewProps {
   result: StrategyResult | null;
   loading: boolean;
+  onNavigate?: (tab: string) => void;
 }
 
 interface StakeNode {
@@ -61,12 +64,29 @@ const INITIAL_STAKES: StakeNode[] = [
   }
 ];
 
-const RevenueStreamsView: React.FC<RevenueStreamsViewProps> = ({ result, loading }) => {
-  const [stakes, setStakes] = useState<StakeNode[]>(INITIAL_STAKES);
-  const [totalClaimed, setTotalClaimed] = useState(854.72);
+const RevenueStreamsView: React.FC<RevenueStreamsViewProps> = ({ result, loading, onNavigate }) => {
+  const [stakes, setStakes] = useState<StakeNode[]>(() => {
+    const saved = localStorage.getItem('venyro_active_stakes');
+    return saved ? JSON.parse(saved) : INITIAL_STAKES;
+  });
+  const [totalClaimed, setTotalClaimed] = useState<number>(() => {
+    const saved = localStorage.getItem('venyro_total_claimed');
+    return saved ? parseFloat(saved) : 854.72;
+  });
+  
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [actionType, setActionType] = useState<'CLAIM' | 'UNSTAKE' | null>(null);
   const [statusMsg, setStatusMsg] = useState('');
+  const [txHash, setTxHash] = useState<string | null>(null);
+
+  // Persistence Sync
+  useEffect(() => {
+    localStorage.setItem('venyro_active_stakes', JSON.stringify(stakes));
+  }, [stakes]);
+
+  useEffect(() => {
+    localStorage.setItem('venyro_total_claimed', totalClaimed.toString());
+  }, [totalClaimed]);
 
   const handleClaim = async (id: string) => {
     const stake = stakes.find(s => s.id === id);
@@ -74,6 +94,7 @@ const RevenueStreamsView: React.FC<RevenueStreamsViewProps> = ({ result, loading
 
     setProcessingId(id);
     setActionType('CLAIM');
+    setTxHash(null);
     setStatusMsg('Signing Claim Request...');
     
     await new Promise(r => setTimeout(r, 1200));
@@ -81,22 +102,26 @@ const RevenueStreamsView: React.FC<RevenueStreamsViewProps> = ({ result, loading
     
     await new Promise(r => setTimeout(r, 1000));
     setStatusMsg('Yield Distributed.');
+    setTxHash(`0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`);
 
-    setTotalClaimed(prev => prev + stake.yieldEarned);
+    const finalYield = stake.yieldEarned;
+    setTotalClaimed(prev => prev + finalYield);
     setStakes(prev => prev.map(s => s.id === id ? { ...s, yieldEarned: 0 } : s));
     
     setTimeout(() => {
       setProcessingId(null);
       setActionType(null);
       setStatusMsg('');
-    }, 1500);
+      setTxHash(null);
+    }, 3000);
   };
 
   const handleUnstake = async (id: string) => {
-    if (!confirm("Confirm protocol unstaking? A 30-day architectural cooldown may apply.")) return;
+    if (!confirm("Confirm protocol unstaking? A 30-day architectural cooldown may apply to secure the liquidity pool.")) return;
 
     setProcessingId(id);
     setActionType('UNSTAKE');
+    setTxHash(null);
     setStatusMsg('Initiating Withdrawal Protocol...');
     
     await new Promise(r => setTimeout(r, 1500));
@@ -104,14 +129,15 @@ const RevenueStreamsView: React.FC<RevenueStreamsViewProps> = ({ result, loading
     
     await new Promise(r => setTimeout(r, 1200));
     setStatusMsg('Capital Released to Wallet.');
+    setTxHash(`0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`);
 
-    setStakes(prev => prev.filter(s => s.id !== id));
-    
     setTimeout(() => {
+      setStakes(prev => prev.filter(s => s.id !== id));
       setProcessingId(null);
       setActionType(null);
       setStatusMsg('');
-    }, 1500);
+      setTxHash(null);
+    }, 2500);
   };
 
   if (loading) return (
@@ -143,7 +169,7 @@ const RevenueStreamsView: React.FC<RevenueStreamsViewProps> = ({ result, loading
 
       {/* PORTFOLIO STAKES SECTION */}
       <section className="space-y-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-primary text-background rounded-lg">
               <Layers className="w-5 h-5" />
@@ -157,7 +183,7 @@ const RevenueStreamsView: React.FC<RevenueStreamsViewProps> = ({ result, loading
           {stakes.map((stake) => {
             const isProcessing = processingId === stake.id;
             return (
-              <div key={stake.id} className="p-8 rounded-[2.5rem] bg-zinc-900/40 border border-white/5 hover:border-zinc-700 transition-all duration-500 space-y-8 relative overflow-hidden group">
+              <div key={stake.id} className={`p-8 rounded-[2.5rem] bg-zinc-900/40 border transition-all duration-500 space-y-8 relative overflow-hidden group ${isProcessing ? 'border-primary/40 shadow-2xl' : 'border-white/5 hover:border-zinc-700'}`}>
                 <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none">
                   <Activity className="w-32 h-32 text-emerald-500" />
                 </div>
@@ -195,7 +221,10 @@ const RevenueStreamsView: React.FC<RevenueStreamsViewProps> = ({ result, loading
                 {isProcessing ? (
                   <div className="pt-6 border-t border-white/5 flex flex-col items-center justify-center space-y-3 animate-in fade-in duration-300">
                     <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500 font-mono">{statusMsg}</p>
+                    <div className="text-center">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500 font-mono mb-1">{statusMsg}</p>
+                      {txHash && <p className="text-[7px] text-emerald-500 font-mono">TX: {txHash}</p>}
+                    </div>
                   </div>
                 ) : (
                   <div className="pt-6 border-t border-white/5 flex items-center justify-between relative z-10">
@@ -204,7 +233,7 @@ const RevenueStreamsView: React.FC<RevenueStreamsViewProps> = ({ result, loading
                       disabled={stake.yieldEarned <= 0}
                       className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 hover:text-primary transition-colors uppercase tracking-widest disabled:opacity-30 disabled:hover:text-zinc-500"
                     >
-                      Claim Yield <ArrowRight className="w-3 h-3" />
+                      {stake.yieldEarned > 0 ? 'Claim Yield' : 'Yield Processed'} <ArrowRight className="w-3 h-3" />
                     </button>
                     <button 
                       onClick={() => handleUnstake(stake.id)}
@@ -218,15 +247,40 @@ const RevenueStreamsView: React.FC<RevenueStreamsViewProps> = ({ result, loading
             );
           })}
 
-          <div className="p-8 rounded-[2.5rem] border border-dashed border-zinc-800 flex flex-col items-center justify-center text-center space-y-4 group hover:border-zinc-600 transition-colors cursor-pointer">
-             <div className="w-12 h-12 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600 group-hover:text-primary transition-colors">
-                <PlusCircle className="w-6 h-6" />
-             </div>
-             <div className="space-y-1">
-                <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest">Add New Stake</p>
-                <p className="text-[10px] text-zinc-700 max-w-[200px]">Browse verified businesses on the Business Dex to expand your portfolio.</p>
-             </div>
-          </div>
+          {stakes.length === 0 && (
+            <div className="md:col-span-2 p-12 md:p-20 rounded-[3rem] bg-zinc-950 border border-border border-dashed flex flex-col items-center justify-center text-center space-y-8 animate-in zoom-in-95">
+               <div className="w-20 h-20 bg-zinc-900 border border-white/5 rounded-full flex items-center justify-center shadow-2xl">
+                 <Shield className="w-10 h-10 text-zinc-700" />
+               </div>
+               <div className="space-y-4">
+                 <h3 className="text-2xl font-bold text-primary">No Active Staking Nodes</h3>
+                 <p className="text-sm text-zinc-500 max-w-sm mx-auto font-light leading-relaxed">
+                   Your staking portfolio is currently empty. Secure protocol revenue streams by acquiring or staking in verified ventures.
+                 </p>
+               </div>
+               <button 
+                onClick={() => onNavigate?.('business_hub')}
+                className="px-10 py-4 bg-primary text-background rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white shadow-xl transition-all active:scale-95 flex items-center gap-3"
+               >
+                 <Briefcase className="w-4 h-4" /> Explore Opportunities
+               </button>
+            </div>
+          )}
+
+          {stakes.length > 0 && (
+            <div 
+              onClick={() => onNavigate?.('business_hub')}
+              className="p-8 rounded-[2.5rem] border border-dashed border-zinc-800 flex flex-col items-center justify-center text-center space-y-4 group hover:border-zinc-600 transition-colors cursor-pointer"
+            >
+               <div className="w-12 h-12 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600 group-hover:text-primary transition-colors">
+                  <PlusCircle className="w-6 h-6" />
+               </div>
+               <div className="space-y-1">
+                  <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest">Add New Stake</p>
+                  <p className="text-[10px] text-zinc-700 max-w-[200px]">Browse verified businesses on the Business Dex to expand your portfolio.</p>
+               </div>
+            </div>
+          )}
         </div>
       </section>
     </div>
