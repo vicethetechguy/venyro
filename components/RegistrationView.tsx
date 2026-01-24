@@ -151,27 +151,30 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
-      <header className="h-24 shrink-0 border-b border-border/50 px-8 flex items-center justify-between bg-background/80 backdrop-blur-xl z-20">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-primary text-background rounded-2xl shadow-xl">
-            <ShieldCheck className="w-5 h-5" />
+      <header className="h-20 md:h-24 shrink-0 border-b border-border/50 px-4 md:px-8 flex items-center justify-between bg-background/80 backdrop-blur-xl z-20">
+        <div className="flex items-center gap-3 md:gap-4 shrink-0">
+          <div className="p-2 md:p-3 bg-primary text-background rounded-xl md:rounded-2xl shadow-xl">
+            <ShieldCheck className="w-4 h-4 md:w-5 md:h-5" />
           </div>
-          <div className="hidden xs:block">
-            <h1 className="text-xl font-bold text-primary tracking-tight">Incorporation Terminal</h1>
-            <p className="text-[10px] uppercase font-bold text-zinc-500 tracking-[0.2em] flex items-center gap-2">
+          <div className="hidden sm:block">
+            <h1 className="text-lg md:text-xl font-bold text-primary tracking-tight">Incorporation Terminal</h1>
+            <p className="text-[8px] md:text-[10px] uppercase font-bold text-zinc-500 tracking-[0.2em] flex items-center gap-1.5 md:gap-2">
               Mission {stage} of 9 <ChevronRight className="w-3 h-3" /> {STAGES[stage-1]?.title || 'Protocol'}
             </p>
           </div>
+          <div className="sm:hidden">
+             <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Stage {stage}/9</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5 md:gap-3">
+        <div className="flex items-center gap-1 md:gap-3">
           {STAGES.map((s) => (
             <div 
               key={s.id}
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                s.id === stage ? 'w-8 bg-primary' : 
-                s.id < stage ? 'w-4 bg-emerald-500/40' : 
-                'w-4 bg-zinc-800'
+              className={`h-1 md:h-1.5 rounded-full transition-all duration-500 ${
+                s.id === stage ? 'w-6 md:w-8 bg-primary' : 
+                s.id < stage ? 'w-2 md:w-4 bg-emerald-500/40' : 
+                'w-2 md:w-4 bg-zinc-800'
               }`}
             />
           ))}
@@ -179,18 +182,18 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:px-20 lg:py-12 space-y-8 scrollbar-hide">
-        <div className="max-w-4xl mx-auto space-y-10">
+        <div className="max-w-4xl mx-auto space-y-8 md:space-y-10">
           {messages.length === 0 && loading && (
             <div className="flex flex-col items-center justify-center py-20 space-y-6 opacity-40">
-              <Logo isGenerating={true} className="h-16 w-16" hideText />
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-500 animate-pulse">Initializing Advisor Protocol...</p>
+              <Logo isGenerating={true} className="h-12 w-12 md:h-16 md:w-16" hideText />
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-zinc-500 animate-pulse">Initializing Advisor Protocol...</p>
             </div>
           )}
 
           {messages.map((m, idx) => (
             <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-500`}>
-              <div className={`max-w-[90%] md:max-w-[70%] space-y-3`}>
-                <div className={`px-6 py-4 rounded-[1.8rem] shadow-2xl relative ${
+              <div className={`max-w-[92%] md:max-w-[70%] space-y-2 md:space-y-3`}>
+                <div className={`px-5 py-3.5 md:px-6 md:py-4 rounded-2xl md:rounded-[1.8rem] shadow-2xl relative ${
                   m.role === 'user' 
                   ? 'bg-primary text-background font-bold text-xs' 
                   : 'bg-surface/40 border border-border text-zinc-300'
@@ -199,7 +202,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
                 </div>
                 {m.role === 'advisor' && idx === messages.length - 1 && stage < 9 && !loading && (
                    <div className="flex items-center gap-2 px-4">
-                      <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Awaiting Input</span>
+                      <span className="text-[8px] md:text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Awaiting Input</span>
                       <div className="flex gap-1">
                         <div className="w-1 h-1 rounded-full bg-zinc-700 animate-bounce" style={{ animationDelay: '0s' }}></div>
                         <div className="w-1 h-1 rounded-full bg-zinc-700 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
@@ -212,9 +215,9 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
           ))}
           {loading && messages.length > 0 && (
             <div className="flex justify-start animate-in fade-in">
-              <div className="px-6 py-4 rounded-[1.8rem] bg-surface/40 border border-border flex items-center gap-4 shadow-xl">
-                <Logo isGenerating={true} className="h-5 w-5" hideText />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 italic">Advisor analyzing protocol...</span>
+              <div className="px-5 py-3.5 md:px-6 md:py-4 rounded-2xl md:rounded-[1.8rem] bg-surface/40 border border-border flex items-center gap-3 md:gap-4 shadow-xl">
+                <Logo isGenerating={true} className="h-4 w-4 md:h-5 md:w-5" hideText />
+                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-zinc-500 italic">Advisor analyzing protocol...</span>
               </div>
             </div>
           )}
@@ -222,25 +225,25 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
         </div>
       </div>
 
-      <footer className="shrink-0 p-4 md:p-8 bg-background/80 backdrop-blur-xl border-t border-border/50 z-20">
-        <div className="max-w-4xl mx-auto space-y-6">
+      <footer className="shrink-0 p-4 md:p-8 bg-background/80 backdrop-blur-xl border-t border-border/50 z-20 overflow-hidden">
+        <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
           {!loading && stage < 9 && (
             <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-1">
               {stage === 1 && messages.length > 0 && (
                 <button 
                   onClick={() => handleQuickSelect("I'm ready, let's begin.")}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary/20 transition-all active:scale-95"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[9px] md:text-[10px] font-bold uppercase tracking-widest hover:bg-primary/20 transition-all active:scale-95"
                 >
                   <Check className="w-3 h-3" /> Yes, I'm ready
                 </button>
               )}
               {stage === 2 && (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 md:gap-3">
                   {['Business Name', 'Private Limited Company (Ltd)', 'Other'].map(type => (
                     <button 
                       key={type}
                       onClick={() => handleQuickSelect(type)}
-                      className="px-5 py-2.5 rounded-xl border border-border bg-surface/30 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-primary hover:border-zinc-500 transition-all active:scale-95"
+                      className="px-4 md:px-5 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-border bg-surface/30 text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-primary hover:border-zinc-500 transition-all active:scale-95"
                     >
                       {type}
                     </button>
@@ -251,51 +254,51 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onHandoff }) => {
           )}
 
           {stage === 9 ? (
-             <div className="p-8 rounded-[2.5rem] bg-zinc-900 border border-zinc-500 flex flex-col md:flex-row items-center justify-between gap-8 animate-in zoom-in duration-500 shadow-2xl">
-               <div className="text-left space-y-2">
-                 <h3 className="text-xl font-bold text-primary flex items-center gap-3">
-                   <Sparkles className="w-5 h-5 text-primary" /> Ready for High-Fidelity Blueprint
+             <div className="p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] bg-zinc-900 border border-zinc-500 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 animate-in zoom-in duration-500 shadow-2xl">
+               <div className="text-center md:text-left space-y-1.5 md:space-y-2">
+                 <h3 className="text-lg md:text-xl font-bold text-primary flex items-center justify-center md:justify-start gap-3">
+                   <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-primary" /> Ready for Blueprint
                  </h3>
-                 <p className="text-xs text-zinc-500">Your registration protocol is complete. Unlock the investor-ready whitepaper architect.</p>
+                 <p className="text-[10px] md:text-xs text-zinc-500">Registration protocol complete. Unlock the architect.</p>
                </div>
                <button 
                 onClick={handleFinish}
-                className="w-full md:w-auto px-10 py-4 bg-primary text-background rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center justify-center gap-3"
+                className="w-full md:w-auto px-8 md:px-10 py-3.5 md:py-4 bg-primary text-background rounded-xl md:rounded-2xl font-bold text-xs md:text-sm uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center justify-center gap-3"
                >
-                 Initiate Whitepaper Architect <ArrowRight className="w-4 h-4" />
+                 Whitepaper Architect <ArrowRight className="w-4 h-4" />
                </button>
              </div>
           ) : (
-            <form onSubmit={handleUserInput} className="relative group">
-              <div className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-primary transition-colors">
-                <MessageSquare className="w-5 h-5" />
+            <form onSubmit={handleUserInput} className="relative group w-full">
+              <div className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-primary transition-colors">
+                <MessageSquare className="w-4 h-4 md:w-5 md:h-5" />
               </div>
               <input 
                 type="text" 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={getPlaceholderText()}
-                className="w-full bg-surface/30 border border-border rounded-2xl md:rounded-[2.5rem] pl-16 pr-20 py-5 md:py-7 text-sm md:text-base text-primary placeholder:text-zinc-700 focus:outline-none focus:border-zinc-500 transition-all shadow-2xl"
+                className="w-full bg-surface/30 border border-border rounded-xl md:rounded-[2.5rem] pl-12 md:pl-16 pr-16 md:pr-20 py-4 md:py-7 text-xs md:text-base text-primary placeholder:text-zinc-700 focus:outline-none focus:border-zinc-500 transition-all shadow-2xl"
               />
               <button 
                 type="submit"
                 disabled={!input.trim() || loading}
-                className="absolute right-3 top-3 bottom-3 md:right-4 md:top-4 md:bottom-4 w-12 h-12 md:w-16 md:h-16 bg-primary text-background rounded-2xl md:rounded-[2rem] flex items-center justify-center hover:scale-105 active:scale-90 transition-all shadow-xl disabled:opacity-20"
+                className="absolute right-2 top-2 bottom-2 md:right-4 md:top-4 md:bottom-4 w-10 h-10 md:w-16 md:h-16 bg-primary text-background rounded-lg md:rounded-[2rem] flex items-center justify-center hover:scale-105 active:scale-90 transition-all shadow-xl disabled:opacity-20"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                {loading ? <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" /> : <Send className="w-4 h-4 md:w-5 md:h-5" />}
               </button>
             </form>
           )}
 
-          <div className="flex items-center justify-center gap-8 opacity-40">
-             <div className="flex items-center gap-2">
-               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-               <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Secure Protocol</span>
+          <div className="flex items-center justify-center gap-6 md:gap-8 opacity-40">
+             <div className="flex items-center gap-1.5 md:gap-2">
+               <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-emerald-500"></div>
+               <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-zinc-500">Secure Protocol</span>
              </div>
-             <div className="flex items-center gap-2">
+             <div className="flex items-center gap-1.5 md:gap-2">
                <Clock className="w-3 h-3 text-zinc-600" />
-               <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">
-                 {stage < 4 ? "About 4 minutes left" : stage < 7 ? "About 2 minutes left" : "Final steps..."}
+               <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-zinc-500">
+                 {stage < 4 ? "4 min left" : stage < 7 ? "2 min left" : "Final steps"}
                </span>
              </div>
           </div>
