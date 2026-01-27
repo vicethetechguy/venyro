@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Venyro - Strategy AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -49,14 +50,23 @@
         }
     </script>
     <style>
-        * { box-sizing: border-box; }
+        /* Industry standard full-screen app reset */
         html, body { 
-            overflow-x: hidden; 
+            height: 100%;
             width: 100%;
-            position: relative;
             margin: 0;
             padding: 0;
+            background-color: #09090b;
+            /* Letting the browser handle the root height for detection */
         }
+
+        #root {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        * { box-sizing: border-box; }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -163,8 +173,8 @@
 }
 </script>
 </head>
-<body class="bg-background text-secondary font-sans antialiased selection:bg-white/20 selection:text-white min-h-screen">
-    <div id="root" class="h-full min-h-screen w-full overflow-x-hidden"></div>
+<body class="bg-background text-secondary font-sans antialiased selection:bg-white/20 selection:text-white">
+    <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
 </body>
 </html>
