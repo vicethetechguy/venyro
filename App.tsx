@@ -22,7 +22,10 @@ import {
   Palette,
   X,
   Menu,
-  ShieldCheck
+  ShieldCheck,
+  FileText,
+  Plus,
+  Loader2
 } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import ResultsPanel from './components/ResultsPanel';
@@ -113,11 +116,13 @@ const App: React.FC = () => {
   const [result, setResult] = useState<StrategyResult | null>(null);
   const [blueprintResult, setBlueprintResult] = useState<BlueprintResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [docAnalyzing, setDocAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastAiResponse, setLastAiResponse] = useState<string>("");
   const [initialAcquireMode, setInitialAcquireMode] = useState(false);
 
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const docInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = (field: keyof StrategyInputs, value: any) => {
     setInputs((prev: StrategyInputs) => ({ ...prev, [field]: value }));
@@ -129,6 +134,44 @@ const App: React.FC = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         handleInputChange('logo', reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDocUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setDocAnalyzing(true);
+      setError(null);
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Data = (reader.result as string).split(',')[1];
+        const mimeType = file.type || 'application/pdf';
+        
+        try {
+          const gemini = new GeminiService();
+          const inferred = await gemini.analyzeDocument(base64Data, mimeType);
+          
+          setInputs((prev) => ({
+            ...prev,
+            productName: inferred.suggestedName,
+            problem: inferred.pillars.market.draft,
+            transformation: inferred.pillars.valueProp.draft,
+            moat: inferred.pillars.tech.draft,
+            revenueGoal: inferred.pillars.revenue.draft,
+            concept: inferred.pillars.vision.draft
+          }));
+          
+          setMapData(inferred);
+          setLastAiResponse(JSON.stringify(inferred));
+          setStep('MAP');
+          setActiveTab('generation');
+        } catch (err: any) {
+          setError("Failed to analyze document. " + err.message);
+        } finally {
+          setDocAnalyzing(false);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -459,7 +502,7 @@ const App: React.FC = () => {
           onHistoryItemClick={handleHistoryItemClick} 
           onDeleteHistoryItem={handleDeleteHistoryEntry}
           onNewStrategy={handleNewStrategy}
-          isGenerating={loading} 
+          isGenerating={loading || docAnalyzing} 
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
         />
@@ -628,26 +671,48 @@ const App: React.FC = () => {
                     </div>
 
                     <div className="space-y-4 md:space-y-6 pt-2 md:pt-6">
-                      <label className="text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 flex items-center gap-2">
-                        <BrainCircuit className="w-3 h-3" /> Core Strategic Vision
+                      <label className="text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                           <BrainCircuit className="w-3 h-3" /> Core Strategic Vision
+                        </div>
+                        <span className="text-[8px] text-zinc-600 italic">Analysis via AI-OCR Supported</span>
                       </label>
                       <div className="relative group">
                         <textarea 
                           value={inputs.concept}
                           onChange={(e) => handleInputChange('concept', e.target.value)}
                           className="w-full bg-surface/30 border border-border rounded-xl md:rounded-[2rem] p-4 md:p-8 text-sm md:text-xl text-primary placeholder:text-zinc-700 focus:outline-none focus:border-zinc-500 transition-all min-h-[140px] md:min-h-[180px] resize-none leading-relaxed shadow-2xl"
-                          placeholder="Define the problem you're solving..."
+                          placeholder="Define the problem you're solving or upload a document..."
                         />
-                        <button 
-                          onClick={startInference}
-                          disabled={loading}
-                          className="absolute bottom-3 right-3 md:bottom-6 md:right-6 w-10 h-10 md:w-14 md:h-14 bg-primary text-background rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl disabled:opacity-30 disabled:scale-100"
-                        >
-                          <Logo isGenerating={loading} className="h-5 w-5 md:h-8 md:w-8" hideText />
-                        </button>
+                        
+                        <div className="absolute bottom-3 right-3 md:bottom-6 md:right-6 flex items-center gap-2 md:gap-4">
+                           <input 
+                             type="file" 
+                             ref={docInputRef}
+                             onChange={handleDocUpload}
+                             className="hidden" 
+                             accept=".pdf,.doc,.docx,.txt,.md" 
+                           />
+                           <button 
+                             onClick={() => docInputRef.current?.click()}
+                             disabled={docAnalyzing || loading}
+                             title="Upload Doc/PDF"
+                             className="w-10 h-10 md:w-14 md:h-14 bg-surface border border-white/5 text-primary rounded-full flex items-center justify-center hover:bg-zinc-900 active:scale-95 transition-all shadow-xl disabled:opacity-30 disabled:scale-100 group/upload"
+                           >
+                             {docAnalyzing ? <Loader2 className="w-5 h-5 md:w-8 md:h-8 animate-spin" /> : <Plus className="w-5 h-5 md:w-8 md:h-8 group-hover/upload:rotate-90 transition-transform" />}
+                           </button>
+
+                           <button 
+                            onClick={startInference}
+                            disabled={loading || docAnalyzing}
+                            className="w-10 h-10 md:w-14 md:h-14 bg-primary text-background rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl disabled:opacity-30 disabled:scale-100"
+                           >
+                            <Logo isGenerating={loading} className="h-5 w-5 md:h-8 md:w-8" hideText />
+                           </button>
+                        </div>
                       </div>
                       <p className="text-[8px] md:text-[10px] text-zinc-600 text-center uppercase tracking-[0.2em] font-medium">
-                        Press Logo to Synthesize Strategy Map
+                        {docAnalyzing ? 'Analyzing Document Architecture...' : 'Press Logo to Synthesize or + to Analyze Doc'}
                       </p>
                     </div>
                   </div>
