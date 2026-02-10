@@ -11,7 +11,10 @@ import {
   Database,
   ShoppingBag,
   Shield,
-  Loader2
+  Loader2,
+  Wallet,
+  Link as LinkIcon,
+  Globe
 } from 'lucide-react';
 import { StrategyResult } from '../types';
 import RevenueChart from './RevenueChart';
@@ -70,20 +73,14 @@ const VentureRevenueView: React.FC<VentureRevenueViewProps> = ({ result, loading
         </div>
       </header>
 
-      <section className="space-y-8">
-        <div className="flex items-center gap-4">
-          <div className="p-2 bg-zinc-900 border border-white/5 rounded-lg">
-            <Zap className="w-5 h-5 text-zinc-500" />
-          </div>
-          <h2 className="text-xl font-medium text-primary tracking-tight">Current Venture Monetization</h2>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-8 p-8 md:p-10 bg-surface/20 border border-border rounded-[3rem] space-y-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Main Projection Column */}
+        <div className="lg:col-span-8 space-y-8">
+          <div className="p-8 md:p-10 bg-surface/20 border border-border rounded-[3rem] space-y-10">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-medium text-primary">Year 1 Projections</h2>
+              <h2 className="text-lg font-medium text-primary">On-Chain Revenue Projection</h2>
               <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-white/5 rounded-full">
-                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Growth Phase</span>
+                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Vault Activated</span>
               </div>
             </div>
             <div className="h-64 md:h-80 w-full">
@@ -92,41 +89,84 @@ const VentureRevenueView: React.FC<VentureRevenueViewProps> = ({ result, loading
             <div className="p-6 bg-zinc-900/40 border border-white/5 rounded-2xl">
               <p className="text-[11px] text-zinc-500 leading-relaxed flex items-start gap-3">
                 <Info className="w-4 h-4 text-zinc-400 shrink-0 mt-0.5" />
-                {result.breakEvenDescription} Breakdown achieved by Month {result.breakEvenMonth}.
+                {result.breakEvenDescription} Capital velocity achieved by Month {result.breakEvenMonth}.
               </p>
             </div>
           </div>
 
-          <div className="lg:col-span-4 space-y-6">
-            <div className="p-8 bg-surface/30 border border-border rounded-[2.5rem] flex flex-col justify-between h-1/2 shadow-xl">
-              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Break-Even Velocity</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-primary">Month {result.breakEvenMonth}</span>
-              </div>
-              <div className="mt-6 pt-6 border-t border-white/5">
-                <p className="text-[11px] text-zinc-600 font-medium italic">"Architecture stability allows for early capital efficiency."</p>
-              </div>
-            </div>
-            <div className="p-8 bg-surface/30 border border-border rounded-[2.5rem] flex flex-col justify-between h-1/2 shadow-xl">
-              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Yield Confidence</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-emerald-400">{Math.round(result.viabilityScore * 0.85)}%</span>
-              </div>
-              <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">Market Adjusted</span>
-                <ArrowUpRight className="w-4 h-4 text-emerald-500" />
-              </div>
-            </div>
+          <div className="p-8 bg-zinc-950 border border-white/5 rounded-[2.5rem] space-y-6">
+             <div className="flex items-center gap-3">
+                <Shield className="w-5 h-5 text-primary" />
+                <h3 className="text-base font-bold text-primary">Vault Architecture</h3>
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                   <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Vault Status</p>
+                   <p className="text-sm font-bold text-emerald-400">Deployed & Linked</p>
+                </div>
+                <div className="space-y-2">
+                   <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Protocol Settlement</p>
+                   <p className="text-sm font-bold text-zinc-300">Base Mainnet L2</p>
+                </div>
+                <div className="space-y-2">
+                   <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">DeFi Integration</p>
+                   <p className="text-sm font-bold text-zinc-300">{result.vault?.activeDefiProtocols.join(', ') || 'Aerodrome, Aave'}</p>
+                </div>
+             </div>
+             <div className="h-px bg-white/5"></div>
+             <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                   <LinkIcon className="w-3.5 h-3.5 text-zinc-500" />
+                   <span className="text-[10px] text-zinc-500 font-mono">{result.vault?.address || '0x...'}</span>
+                </div>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+                  View On Explorer <ArrowUpRight className="w-3 h-3" />
+                </span>
+             </div>
           </div>
         </div>
-      </section>
+
+        {/* Sidebar Stats */}
+        <div className="lg:col-span-4 space-y-6">
+          <div className="p-8 bg-surface/30 border border-border rounded-[2.5rem] flex flex-col justify-between h-[200px] shadow-xl">
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Break-Even Velocity</p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-primary">Month {result.breakEvenMonth}</span>
+            </div>
+            <div className="mt-6 pt-6 border-t border-white/5">
+              <p className="text-[11px] text-zinc-600 font-medium italic">"Vault-native yield accelerates capital recovery."</p>
+            </div>
+          </div>
+          
+          <div className="p-8 bg-surface/30 border border-border rounded-[2.5rem] flex flex-col justify-between h-[200px] shadow-xl">
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Yield Confidence</p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-emerald-400">{Math.round(result.viabilityScore * 0.85)}%</span>
+            </div>
+            <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">Protocol Stable</span>
+              <ArrowUpRight className="w-4 h-4 text-emerald-500" />
+            </div>
+          </div>
+
+          <div className="p-8 bg-zinc-900 border border-white/10 rounded-[2.5rem] space-y-4">
+             <div className="flex items-center gap-3">
+               <Wallet className="w-5 h-5 text-zinc-500" />
+               <h3 className="text-sm font-bold text-primary">Vault Strategy</h3>
+             </div>
+             <p className="text-[11px] text-zinc-400 leading-relaxed font-light">
+               Revenue flows from storefront directly into your Base vault. {result.vault?.yieldStrategy || 'Funds are automatically staked into moonwell-usdc for optimized yield.'}
+             </p>
+          </div>
+        </div>
+      </div>
 
       <section className="space-y-8 pt-12 border-t border-white/5">
         <div className="flex items-center gap-4">
           <div className="p-2 bg-zinc-900 border border-white/5 rounded-lg">
             <Coins className="w-5 h-5 text-zinc-500" />
           </div>
-          <h2 className="text-xl font-medium text-primary tracking-tight">Active Yield Channels</h2>
+          <h2 className="text-xl font-medium text-primary tracking-tight">Venture Monetization Streams</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -149,7 +189,7 @@ const VentureRevenueView: React.FC<VentureRevenueViewProps> = ({ result, loading
                   </div>
                 </div>
                 <div className="pt-8 mt-8 border-t border-white/5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
-                   <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">Optimization Active</span>
+                   <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">Yield Strategy Linked</span>
                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                 </div>
               </div>

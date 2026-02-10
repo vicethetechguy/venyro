@@ -14,7 +14,8 @@ import {
   Zap,
   Wallet,
   Globe,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Shield
 } from 'lucide-react';
 import { StrategyResult, StrategyInputs } from '../types';
 import Logo from './Logo';
@@ -37,7 +38,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ result, inputs, onNewStra
         <div className="space-y-3 md:space-y-4">
           <h1 className="text-xl md:text-4xl font-bold text-primary tracking-tight">Ready for Inception?</h1>
           <p className="text-zinc-500 text-xs md:text-lg max-w-xl mx-auto leading-relaxed px-4">
-            Your venture workspace is dormant. Initiate the synthesis engine to architect your protocol.
+            Your venture workspace is dormant. Initiate the synthesis engine to architect your protocol and deploy your revenue vault.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 px-4">
@@ -64,16 +65,16 @@ const DashboardView: React.FC<DashboardViewProps> = ({ result, inputs, onNewStra
         <div className="space-y-2 md:space-y-3">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[7px] md:text-[9px] font-bold text-emerald-400 uppercase tracking-widest">
-              Active Protocol
+              Vault Active
             </div>
             <div className="w-1 h-1 rounded-full bg-zinc-700"></div>
-            <span className="text-[8px] md:text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Command Center</span>
+            <span className="text-[8px] md:text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Protocol Command</span>
           </div>
           <h1 className="text-2xl md:text-5xl font-bold text-primary tracking-tighter">
             {inputs.productName}
           </h1>
           <p className="text-xs md:text-lg text-zinc-400 font-light max-w-2xl leading-relaxed">
-            {result.summary.split('.')[0]}.
+            {result.summary.split('.')[0]}. Revenue vault successfully synced with Base L2.
           </p>
         </div>
         <div className="flex items-center gap-2 md:gap-3">
@@ -94,10 +95,10 @@ const DashboardView: React.FC<DashboardViewProps> = ({ result, inputs, onNewStra
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         {[
-          { label: 'Viability', value: `${result.viabilityScore}%`, trend: '+4.2%', icon: Target, color: 'text-primary' },
-          { label: 'Forecast', value: `$${(result.projections[result.projections.length-1].value / 1000).toFixed(0)}k`, trend: 'Year 1', icon: TrendingUp, color: 'text-emerald-400' },
-          { label: 'Break-even', value: `M${result.breakEvenMonth}`, trend: 'Velocity', icon: Clock, color: 'text-amber-400' },
-          { label: 'Yield', value: result.suggestedStreams.length, trend: 'Nodes', icon: Zap, color: 'text-blue-400' }
+          { label: 'Viability', value: `${result.viabilityScore}%`, trend: 'Verified', icon: Target, color: 'text-primary' },
+          { label: 'Vault Balance', value: `$${(result.vault?.balance || 0).toLocaleString()}`, trend: 'USDC', icon: Shield, color: 'text-emerald-400' },
+          { label: 'Forecast', value: `$${(result.projections[result.projections.length-1].value / 1000).toFixed(0)}k`, trend: 'Y1 Target', icon: TrendingUp, color: 'text-blue-400' },
+          { label: 'Yield Channels', value: result.suggestedStreams.length, trend: 'Active', icon: Zap, color: 'text-amber-400' }
         ].map((m, i) => (
           <div key={i} className="p-4 md:p-6 bg-surface/20 border border-border rounded-xl md:rounded-3xl space-y-2 md:space-y-4 hover:border-zinc-700 transition-colors group">
             <div className="flex items-center justify-between">
@@ -167,17 +168,17 @@ const DashboardView: React.FC<DashboardViewProps> = ({ result, inputs, onNewStra
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div className="p-5 md:p-8 bg-gradient-to-br from-zinc-900/50 to-black border border-white/5 rounded-2xl md:rounded-[2.5rem] space-y-4 md:space-y-6 shadow-xl">
               <h3 className="text-[10px] md:text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-2 md:gap-3">
-                <Wallet className="w-3.5 h-3.5 md:w-4 md:h-4 text-zinc-500" /> Treasury
+                <Wallet className="w-3.5 h-3.5 md:w-4 md:h-4 text-zinc-500" /> Vault Control
               </h3>
               <div className="space-y-1">
-                <p className="text-xl md:text-3xl font-bold text-primary">12.842 ETH</p>
-                <p className="text-[9px] md:text-xs text-zinc-500">≈ $32,481 USD</p>
+                <p className="text-xl md:text-3xl font-bold text-primary">${(result.vault?.balance || 0).toLocaleString()}</p>
+                <p className="text-[9px] md:text-xs text-zinc-500 font-mono truncate">{result.vault?.address || '0x...'}</p>
               </div>
               <button 
-                onClick={() => onNavigate('wallet')}
+                onClick={() => onNavigate('revenue')}
                 className="w-full py-2.5 bg-zinc-800 border border-white/5 rounded-xl text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-primary transition-all"
               >
-                View Assets
+                Manage Yield
               </button>
             </div>
 
@@ -189,7 +190,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ result, inputs, onNewStra
                 <code className="text-[8px] md:text-[9px] text-zinc-500 font-mono truncate mr-2">venyro.base/order/...</code>
                 <LinkIcon className="w-3 h-3 text-zinc-700 group-hover:text-primary transition-colors cursor-pointer shrink-0" />
               </div>
-              <p className="text-[8px] md:text-[10px] text-zinc-600 leading-relaxed font-medium">Bridged local payments.</p>
+              <p className="text-[8px] md:text-[10px] text-zinc-600 leading-relaxed font-medium">Automatic settlement into vault.</p>
             </div>
           </div>
         </div>

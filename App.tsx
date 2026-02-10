@@ -319,6 +319,13 @@ const App: React.FC = () => {
         welcomeMessage: `Greetings. I am the acquisition analyst for ${business.name}.`,
         acceptedCurrencies: ["USDC", "ETH"],
         contractAddress: "0x" + Math.random().toString(16).slice(2, 42)
+      },
+      vault: {
+        address: "0x" + Math.random().toString(16).slice(2, 42),
+        balance: 0,
+        activeDefiProtocols: ["Aerodrome"],
+        yieldStrategy: "Market Liquidity Provisioning",
+        lastSync: new Date().toISOString()
       }
     };
 
@@ -769,7 +776,7 @@ const App: React.FC = () => {
             )}
 
             {activeTab === 'revenue' && (
-              <RevenueStreamsView result={result} loading={loading} onNavigate={setActiveTab} />
+              <RevenueStreamsView result={result} loading={loading} onNavigate={setActiveTab} history={history} />
             )}
 
             {activeTab === 'revenue_streams' && (

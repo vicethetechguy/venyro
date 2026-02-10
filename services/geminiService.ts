@@ -123,7 +123,8 @@ export class GeminiService {
     Transformation: ${inputs.transformation}.
     Moat: ${inputs.moat}.
     Previous Context: ${context || 'N/A'}. 
-    Include Base blockchain implementation details and StorefrontData.`;
+    Include Base blockchain implementation details, StorefrontData, and VaultDetails.
+    VaultDetails must include: address (mock 0x...), balance (0), activeDefiProtocols (e.g. Aerodrome, Moonwell, Aave), yieldStrategy (e.g. Auto-compounding USDC).`;
 
     const response = await ai.models.generateContent({
       model: this.modelName,
@@ -156,9 +157,20 @@ export class GeminiService {
                 contractAddress: { type: Type.STRING }
               },
               required: ["heroTitle", "heroSubtitle", "ctaText", "welcomeMessage", "acceptedCurrencies", "contractAddress"]
+            },
+            vault: {
+              type: Type.OBJECT,
+              properties: {
+                address: { type: Type.STRING },
+                balance: { type: Type.NUMBER },
+                activeDefiProtocols: { type: Type.ARRAY, items: { type: Type.STRING } },
+                yieldStrategy: { type: Type.STRING },
+                lastSync: { type: Type.STRING }
+              },
+              required: ["address", "balance", "activeDefiProtocols", "yieldStrategy", "lastSync"]
             }
           },
-          required: ["projections", "suggestedStreams", "checklist", "viabilityScore", "breakEvenMonth", "breakEvenDescription", "strategicPillars", "technologies", "riskMatrix", "roadmap", "summary", "kpis", "storefront"]
+          required: ["projections", "suggestedStreams", "checklist", "viabilityScore", "breakEvenMonth", "breakEvenDescription", "strategicPillars", "technologies", "riskMatrix", "roadmap", "summary", "kpis", "storefront", "vault"]
         }
       }
     });

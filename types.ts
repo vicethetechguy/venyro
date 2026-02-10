@@ -44,6 +44,14 @@ export interface StorefrontData {
   contractAddress: string;
 }
 
+export interface VaultDetails {
+  address: string;
+  balance: number;
+  activeDefiProtocols: string[];
+  yieldStrategy: string;
+  lastSync: string;
+}
+
 export interface StrategyResult {
   projections: RevenuePoint[];
   suggestedStreams: SuggestedStream[];
@@ -62,6 +70,7 @@ export interface StrategyResult {
   summary: string;
   kpis: KPI[];
   storefront?: StorefrontData;
+  vault?: VaultDetails;
 }
 
 export interface PillarData {
